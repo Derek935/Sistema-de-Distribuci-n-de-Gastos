@@ -1,22 +1,3 @@
-<?php
-
-$mensaje = "";
-
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-
-    $user = $_POST["usuario"];
-    $pass = $_POST["password"];
-
-    if($user == "admin" && $pass == "1234"){
-        $mensaje = "Bienvenido al sistema";
-    }else{
-        $mensaje = "Usuario o contraseña incorrectos";
-    }
-
-}
-
-?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -96,12 +77,6 @@ button:hover{
 background:#111827;
 }
 
-.mensaje{
-margin-top:15px;
-font-weight:bold;
-color:#111827;
-}
-
 </style>
 </head>
 
@@ -118,27 +93,38 @@ color:#111827;
 <h2>→ Iniciar Sesión</h2>
 <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
 
-<form method="POST">
-
 <label>Usuario</label>
-<input name="usuario" placeholder="Número de empleado / Boleta" required>
+<input id="usuario" placeholder="Número de empleado / Boleta">
 
 <label>Contraseña</label>
-<input name="password" type="password" placeholder="Ingresa tu contraseña" required>
+<input id="password" type="password" placeholder="Ingresa tu contraseña">
 
-<button type="submit">→ Ingresar</button>
+<button onclick="login()">→ Ingresar</button>
 
-</form>
+</div>
 
-<?php
-if($mensaje != ""){
-    echo "<p class='mensaje'>$mensaje</p>";
+</div>
+
+<script>
+
+function login(){
+
+let user = document.getElementById("usuario").value
+let pass = document.getElementById("password").value
+
+if(user === "admin" && pass === "1234"){
+
+alert("Bienvenido al sistema")
+
+}else{
+
+alert("Usuario o contraseña incorrectos")
+
 }
-?>
 
-</div>
+}
 
-</div>
+</script>
 
 </body>
 </html>
