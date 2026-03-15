@@ -1,201 +1,114 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Dashboard Control de Gastos</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Control de Gastos</title>
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style></style>
+  </head>
 
-<style>
+  <body>
+    <header>Dashboard Control de Gastos</header>
 
-body{
-font-family: Arial;
-background:#f4f6f9;
-margin:0;
-}
+    <div class="container-dashboard">
+      <!-- TARJETAS -->
 
-header{
-background:#1f2937;
-color:white;
-padding:20px;
-font-size:22px;
-}
+      <div class="cards">
+        <div class="card">
+          <h3>Total Gastos</h3>
+          <p id="total">$0</p>
+        </div>
 
-.container{
-max-width:1200px;
-margin:auto;
-padding:20px;
-}
+        <div class="card">
+          <h3>Registros</h3>
+          <p id="registros">0</p>
+        </div>
+      </div>
 
-.cards{
-display:flex;
-gap:20px;
-margin-bottom:20px;
-}
+      <!-- TABLA -->
 
-.card{
-flex:1;
-background:white;
-padding:20px;
-border-radius:8px;
-text-align:center;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
+      <h3>Historial de gastos</h3>
 
-table{
-width:100%;
-border-collapse:collapse;
-background:white;
-}
+      <table>
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Tipo</th>
+            <th>Concepto</th>
+            <th>Monto</th>
+          </tr>
+        </thead>
 
-th,td{
-padding:10px;
-border-bottom:1px solid #ddd;
-text-align:center;
-}
+        <tbody id="tabla"></tbody>
+      </table>
 
-.chart-box{
-background:white;
-padding:20px;
-margin-top:20px;
-border-radius:8px;
-}
+      <br />
 
-button{
-padding:10px;
-background:#2563eb;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-margin-right:10px;
-}
+      <button onclick="exportExcel()">Exportar Excel</button>
+      <button onclick="exportPDF()">Exportar PDF</button>
 
-</style>
-</head>
+      <!-- GRAFICA -->
 
-<body>
+      <div class="chart-box">
+        <h3>Gastos por categoría</h3>
 
-<header>
-Dashboard Control de Gastos
-</header>
+        <canvas id="grafica"></canvas>
+      </div>
+    </div>
 
-<div class="container">
+    <script>
+      /* DATOS ORIGINALES DEL PROYECTO */
 
-<!-- TARJETAS -->
+      const expenses = [
+        {
+          employeeName: "Mantenedor A",
+          position: "Mantenedor",
+          expenses: [
+            { category: "Gasolina", amount: 850 },
+            { category: "Viático mantenedor", amount: 500 },
+          ],
+        },
 
-<div class="cards">
+        {
+          employeeName: "Técnico 1",
+          position: "Tecnico",
+          expenses: [
+            { category: "Hotel", amount: 1200 },
+            { category: "Viático técnico", amount: 800 },
+          ],
+        },
+      ];
 
-<div class="card">
-<h3>Total Gastos</h3>
-<p id="total">$0</p>
-</div>
+      /* CONVERTIR A HISTORIAL */
 
-<div class="card">
-<h3>Registros</h3>
-<p id="registros">0</p>
-</div>
+      let historial = [];
 
-</div>
+      expenses.forEach((e) => {
+        e.expenses.forEach((g) => {
+          historial.push({
+            empleado: e.employeeName,
+            tipo: e.position,
+            categoria: g.category,
+            monto: g.amount,
+          });
+        });
+      });
 
-<!-- TABLA -->
+      /* TABLA */
 
-<h3>Historial de gastos</h3>
+      const tabla = document.getElementById("tabla");
 
-<table>
+      let total = 0;
 
-<thead>
+      historial.forEach((g) => {
+        total += g.monto;
 
-<tr>
-<th>Empleado</th>
-<th>Tipo</th>
-<th>Concepto</th>
-<th>Monto</th>
-</tr>
-
-</thead>
-
-<tbody id="tabla"></tbody>
-
-</table>
-
-<br>
-
-<button onclick="exportExcel()">Exportar Excel</button>
-<button onclick="exportPDF()">Exportar PDF</button>
-
-<!-- GRAFICA -->
-
-<div class="chart-box">
-
-<h3>Gastos por categoría</h3>
-
-<canvas id="grafica"></canvas>
-
-</div>
-
-</div>
-
-<script>
-
-/* DATOS ORIGINALES DEL PROYECTO */
-
-const expenses=[
-
-{
-employeeName:"Mantenedor A",
-position:"Mantenedor",
-expenses:[
-{category:"Gasolina",amount:850},
-{category:"Viático mantenedor",amount:500}
-]
-},
-
-{
-employeeName:"Técnico 1",
-position:"Tecnico",
-expenses:[
-{category:"Hotel",amount:1200},
-{category:"Viático técnico",amount:800}
-]
-}
-
-]
-
-/* CONVERTIR A HISTORIAL */
-
-let historial=[]
-
-expenses.forEach(e=>{
-
-e.expenses.forEach(g=>{
-
-historial.push({
-
-empleado:e.employeeName,
-tipo:e.position,
-categoria:g.category,
-monto:g.amount
-
-})
-
-})
-
-})
-
-/* TABLA */
-
-const tabla=document.getElementById("tabla")
-
-let total=0
-
-historial.forEach(g=>{
-
-total+=g.monto
-
-tabla.innerHTML+=`
+        tabla.innerHTML += `
 
 <tr>
 
@@ -206,78 +119,67 @@ tabla.innerHTML+=`
 
 </tr>
 
-`
+`;
+      });
 
-})
+      document.getElementById("total").innerText = "$" + total;
+      document.getElementById("registros").innerText = historial.length;
 
-document.getElementById("total").innerText="$"+total
-document.getElementById("registros").innerText=historial.length
+      /* GRAFICA */
 
-/* GRAFICA */
+      const datos = {};
 
-const datos={}
+      historial.forEach((g) => {
+        if (!datos[g.categoria]) datos[g.categoria] = 0;
 
-historial.forEach(g=>{
+        datos[g.categoria] += g.monto;
+      });
 
-if(!datos[g.categoria]) datos[g.categoria]=0
+      new Chart(document.getElementById("grafica"), {
+        type: "bar",
 
-datos[g.categoria]+=g.monto
+        data: {
+          labels: Object.keys(datos),
+          datasets: [
+            {
+              label: "Monto",
+              data: Object.values(datos),
+            },
+          ],
+        },
+      });
 
-})
+      /* EXPORTAR EXCEL */
 
-new Chart(document.getElementById("grafica"),{
+      function exportExcel() {
+        let ws = XLSX.utils.json_to_sheet(historial);
 
-type:"bar",
+        let wb = XLSX.utils.book_new();
 
-data:{
-labels:Object.keys(datos),
-datasets:[{
-label:"Monto",
-data:Object.values(datos)
-}]
-}
+        XLSX.utils.book_append_sheet(wb, ws, "Gastos");
 
-})
+        XLSX.writeFile(wb, "historial_gastos.xlsx");
+      }
 
-/* EXPORTAR EXCEL */
+      /* EXPORTAR PDF */
 
-function exportExcel(){
+      function exportPDF() {
+        const { jsPDF } = window.jspdf;
 
-let ws=XLSX.utils.json_to_sheet(historial)
+        let doc = new jsPDF();
 
-let wb=XLSX.utils.book_new()
+        doc.text("Historial de gastos", 10, 10);
 
-XLSX.utils.book_append_sheet(wb,ws,"Gastos")
+        let y = 20;
 
-XLSX.writeFile(wb,"historial_gastos.xlsx")
+        historial.forEach((g) => {
+          doc.text(`${g.empleado} - ${g.categoria} - $${g.monto}`, 10, y);
 
-}
+          y += 10;
+        });
 
-/* EXPORTAR PDF */
-
-function exportPDF(){
-
-const {jsPDF}=window.jspdf
-
-let doc=new jsPDF()
-
-doc.text("Historial de gastos",10,10)
-
-let y=20
-
-historial.forEach(g=>{
-
-doc.text(`${g.empleado} - ${g.categoria} - $${g.monto}`,10,y)
-
-y+=10
-
-})
-
-doc.save("historial_gastos.pdf")
-
-}
-
-</script>
-
-</body>
+        doc.save("historial_gastos.pdf");
+      }
+    </script>
+  </body>
 </html>
