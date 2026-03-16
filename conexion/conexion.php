@@ -1,6 +1,11 @@
 <?php
 
- $conn = new mysqli("208.109.17.48", "root", "1234", "almacen_db");
+   $servidor = "127.0.0.1";
+   $usuario = "root";
+   $clave = "1234";
+   $basedeDatos = "almacen_db";
+
+   $conn = mysqli_connect($servidor,$usuario,$clave,$basedeDatos);
 
   if ($conn->connect_error) {
     die("Error: Imposible conectarse: " . $conn->connect_error);
