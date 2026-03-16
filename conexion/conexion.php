@@ -1,6 +1,6 @@
 <?php
 
- $conn = new mysqli("208.109.17.48", "root", "1234", "actividades_direccionalmacen_db");
+ $conn = new mysqli("208.109.17.48", "root", "1234", "almacen_db");
 
   if ($conn->connect_error) {
     die("Error: Imposible conectarse: " . $conn->connect_error);
