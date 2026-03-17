@@ -13,20 +13,21 @@
 
     <div class="container">
       <div class="login-box">
+        <form method="post" action="">
         <h2>→ Iniciar Sesión</h2>
         <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
 
         <label>Usuario</label>
-        <input id="usuario" placeholder="Número de empleado / Boleta" />
+        <input name="usuario" placeholder="Número de empleado / Boleta" />
 
         <label>Contraseña</label>
         <input
-          id="password"
+          name="password"
           type="password"
           placeholder="Ingresa tu contraseña"
         />
-
-        <button onclick="login()">→ Ingresar</button>
+        <button name="login" onclick="login()">→ Ingresar</button>
+        </form>
       </div>
     </div>
 
