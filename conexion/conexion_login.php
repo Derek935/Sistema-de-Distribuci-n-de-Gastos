@@ -7,7 +7,7 @@
         include("conexion/conexion.php");
         $usuario = $_POST['usuario'];
         $clave = $_POST['password'];
-        $sql = "SELECT * FROM nom_encargados WHERE usuario='$usuario' AND clave='$clave'";
+        $sql = "SELECT * FROM nom_encargados WHERE nombres='$usuario' AND contraseña='$clave'";
         $result = mysqli_query($conn, $sql);
         if(mysqli_num_rows($result) > 0){
             header("Location: dashboard.html");
