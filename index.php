@@ -15,22 +15,22 @@
       <div class="login-box">
         <form method="post" action="">
         <h2>→ Iniciar Sesión</h2>
-        <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
-          <?php 
-          include 'conexion/conexion_login.php'; 
-          include 'conexion/conexion.php'; 
+        <?php 
+          include ("conexion/conexion.php"); 
+          include ("conexion/conexion_login.php"); 
+          
+          
           ?>
+        <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
+
         <label>Usuario</label>
         <input name="usuario" placeholder="Número de empleado / Boleta" />
 
         <label>Contraseña</label>
-        <input
-          name="password"
-          type="password"
-          placeholder="Ingresa tu contraseña"
-        />
-        <button name="login" onclick="login()">→ Ingresar</button>
+        <input name="password" type="password" placeholder="Ingresa tu contraseña"/>
+        <input name="btnlogin" class="btn" type="submit" value ="→ Ingresar">
         </form>
+
       </div>
     </div>
 
