@@ -17,8 +17,8 @@
         <h2>→ Iniciar Sesión</h2>
         <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
           <?php 
-          
           include 'conexion/conexion_login.php'; 
+          include 'conexion/conexion.php'; 
           ?>
         <label>Usuario</label>
         <input name="usuario" placeholder="Número de empleado / Boleta" />
