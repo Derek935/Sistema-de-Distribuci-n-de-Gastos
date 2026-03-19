@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Registro de Gastos</title>
+
+    <style>
+      body {
+        font-family: Arial;
+        background: #f5f6f8;
+        margin: 0;
+      }
+      .header {
+        padding: 20px;
+        font-size: 22px;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+      }
+      .menu {
+        padding: 10px 20px;
+      }
+      .menu button {
+        background: #e5e7eb;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin-right: 10px;
+        cursor: pointer;
+      }
+      .container {
+        width: 95%;
+        margin: auto;
+        margin-top: 20px;
+      }
+      .card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .lista {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+      }
+      .lista label {
+        display: block;
+        margin-bottom: 8px;
+      }
+      .gastos-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      .gasto-item {
+        display: flex;
+        flex-direction: column;
+        background: #f9fafb;
+        padding: 10px;
+        border-radius: 8px;
+      }
+      .gasto-item span {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .gasto-item input {
+        width: 100%;
+        height: 35px;
+      }
+      input,
+      select {
+        padding: 6px;
+        height: 30px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        width: 100%;
+      }
+      textarea {
+        width: 100%;
+        height: 60px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+      .btn {
+        width: 100%;
+        padding: 12px;
+        background: #020617;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header">Soluciones de Tecnología Grupo Dos</div>
+
+    <div class="menu">
+      <button onclick="alert('Login no disponible')">Login</button>
+      <button onclick="location.href = 'gastos.html'">Gastos</button>
+      <button onclick="location.href = 'dashboard.html'">Dashboard</button>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <h3>Seleccionar Empleado</h3>
+
+        <h4>Mantenedor</h4>
+        <div class="lista">
+          <label
+            ><input
+              type="radio"
+              name="emp"
+              value="Juan Luis Moreno Peña|Mantenedor"
+            />
+            Juan Luis Moreno Peña</label
+          >
+          <label
+            ><input
+              type="radio"
+              name="emp"
+              value="Oscar Yohan González Rodríguez|Mantenedor"
+            />
+            Oscar Yohan González</label
+          >
+        </div>
+
+        <h4>Técnico</h4>
+        <div class="lista">
+          <label
+            ><input
+              type="radio"
+              name="emp"
+              value="Jonathan González Rodríguez|Tecnico"
+            />
+            Jonathan González</label
+          >
+          <label
+            ><input
+              type="radio"
+              name="emp"
+              value="Pedro Hugo Villegas Rodríguez|Tecnico"
+            />
+            Pedro Hugo</label
+          >
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Información de salida</h3>
+
+        <div class="gastos-grid">
+          <div>
+            <label>Región</label>
+            <select id="region">
+              <option value="">Seleccionar</option>
+              <option>Guadalajara</option>
+              <option>Tepic</option>
+              <option>Mochis</option>
+              <option>CDMX</option>
+              <option>Puebla</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Programa</label>
+            <select id="programa">
+              <option value="">Seleccionar</option>
+              <option>EALV</option>
+              <option>Repetidoras</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Tipo de salida</label>
+            <select id="tipoSalida">
+              <option value="">Seleccionar</option>
+              <option>Mantenimiento</option>
+              <option>Falla</option>
+              <option>Fortuito</option>
+              <option>Instalación</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Fecha</label>
+            <input type="date" id="fecha" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Categoría de Gasto</h3>
+
+        <div class="gastos-grid">
+          <div class="gasto-item">
+            <span>Gasolina</span><input type="number" />
+          </div>
+          <div class="gasto-item">
+            <span>Hotel</span><input type="number" />
+          </div>
+          <div class="gasto-item">
+            <span>Casetas</span><input type="number" />
+          </div>
+          <div class="gasto-item">
+            <span>Materiales</span><input type="number" />
+          </div>
+          <div class="gasto-item">
+            <span>Acceso vía</span><input type="number" />
+          </div>
+          <div class="gasto-item">
+            <span>Viático mantenedor</span><input type="number" />
+          </div>
+          <div class="gasto-item">
+            <span>Viático técnico</span><input type="number" />
+          </div>
+          <div class="gasto-item">
+            <span>Otros gastos</span><input type="number" />
+          </div>
+        </div>
+
+        <br />
+
+        <label>Observaciones</label>
+        <textarea id="observaciones"></textarea>
+
+        <br /><br />
+
+        <button class="btn" onclick="guardar()">+ Añadir Gasto</button>
+      </div>
+    </div>
+
+    <script>
+      function guardar() {
+        let emp = document.querySelector('input[name="emp"]:checked');
+        if (!emp) {
+          alert("Selecciona empleado");
+          return;
+        }
+
+        let region = document.getElementById("region").value;
+        let programa = document.getElementById("programa").value;
+        let tipoSalida = document.getElementById("tipoSalida").value;
+        let fecha = document.getElementById("fecha").value;
+        let obs = document.getElementById("observaciones").value;
+
+        if (!region || !programa || !tipoSalida || !fecha) {
+          alert("Completa todos los campos");
+          return;
+        }
+
+        let [nombre, tipo] = emp.value.split("|");
+
+        let historial = JSON.parse(localStorage.getItem("gastos") || "[]");
+
+        document.querySelectorAll(".gasto-item").forEach((item) => {
+          let cat = item.children[0].innerText;
+          let val = item.children[1].value;
+
+          if (val && val > 0) {
+            historial.push({
+              empleado: nombre,
+              tipo: tipo,
+              categoria: cat,
+              monto: parseFloat(val),
+              region,
+              programa,
+              tipoSalida,
+              fecha,
+              observaciones: obs,
+            });
+          }
+        });
+
+        localStorage.setItem("gastos", JSON.stringify(historial));
+
+        alert("Guardado correctamente");
+
+        window.location.href = "dashboard.html";
+      }
+    </script>
+  </body>
+</html>
