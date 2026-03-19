@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{font-family:Arial;background:#f5f6f8;margin:0;}
+.header{padding:20px;font-size:22px;font-weight:bold;border-bottom:1px solid #ddd;}
+.menu{padding:10px 20px;}
+.menu button{
+background:#e5e7eb;
+border:none;
+padding:8px 15px;
+border-radius:20px;
+margin-right:10px;
+cursor:pointer;
+}
+.container{width:95%;margin:auto;margin-top:20px;}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+.grid-2{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.chart{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Dashboard Control de Gastos</div>
+
+<div class="menu">
+<button onclick="location.href='gastos.html'">Regresar a registro de gastos</button>
+<button onclick="location.href='gastos.html'">Gastos</button>
+<button onclick="location.href='dashboard.html'">Dashboard</button>
+</div>
+
+<div class="container">
+
+<div class="card">
+<h3>Total Gastos: <span id="total">$0</span></h3>
+<h3>Total Registros: <span id="registros">0</span></h3>
+</div>
+
+<h3>Empleado</h3>
+<select id="empleadoSelect" onchange="filtrar()"></select>
+
+<!-- NOMBRE EMPLEADO -->
+<h2 id="nombreEmpleado"></h2>
+
+<table border="1" width="100%">
+<thead>
+<tr>
+<th>Categoría</th>
+<th>Monto</th>
+<th>Fecha</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+
+<div class="grid-2">
+
+<div class="chart">
+<h3>Gastos por categoría</h3>
+<canvas id="graficaCategoria"></canvas>
+</div>
+
+<div class="chart">
+<h3>Top empleados</h3>
+<canvas id="graficaTop"></canvas>
+</div>
+
+</div>
+
+<div class="chart">
+<h3>Gastos por mes</h3>
+<canvas id="graficaMes"></canvas>
+</div>
+
+</div>
+
+<script>
+
+let data = JSON.parse(localStorage.getItem("gastos") || "[]")
+
+let select = document.getElementById("empleadoSelect")
+let tabla = document.getElementById("tabla")
+
+let empleados = [...new Set(data.map(e=>e.empleado))]
+
+empleados.forEach(e=>{
+let op=document.createElement("option")
+op.text=e
+select.add(op)
+})
+
+let chartCategoria, chartTop, chartMes
+
+function filtrar(){
+
+let emp = select.value
+document.getElementById("nombreEmpleado").innerText = emp
+
+tabla.innerHTML=""
+
+let filtrados = data
+.map((g,i)=>({...g,index:i}))
+.filter(g=>g.empleado===emp)
+
+let total=0
+let cat={}
+
+filtrados.forEach(g=>{
+
+total+=g.monto
+
+tabla.innerHTML+=`
+<tr>
+<td>${g.categoria}</td>
+<td>$${g.monto}</td>
+<td>${g.fecha}</td>
+<td>
+<button onclick="editar(${g.index})">Editar</button>
+<button onclick="eliminar(${g.index})">Eliminar</button>
+</td>
+</tr>`
+
+if(!cat[g.categoria]) cat[g.categoria]=0
+cat[g.categoria]+=g.monto
+})
+
+document.getElementById("total").innerText="$"+total
+document.getElementById("registros").innerText=filtrados.length
+
+// GRAFICA CATEGORIA
+if(chartCategoria) chartCategoria.destroy()
+chartCategoria = new Chart(graficaCategoria,{
+type:"pie",
+data:{
+labels:Object.keys(cat),
+datasets:[{data:Object.values(cat)}]
+}
+})
+
+// TOP EMPLEADOS
+let totEmp={}
+data.forEach(g=>{
+if(!totEmp[g.empleado]) totEmp[g.empleado]=0
+totEmp[g.empleado]+=g.monto
+})
+
+let top=Object.entries(totEmp).sort((a,b)=>b[1]-a[1]).slice(0,10)
+
+if(chartTop) chartTop.destroy()
+chartTop = new Chart(graficaTop,{
+type:"bar",
+data:{
+labels:top.map(e=>e[0]),
+datasets:[{data:top.map(e=>e[1])}]
+}
+})
+
+// MESES BONITOS
+let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio",
+"Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
+
+let porMes = {}
+
+data.forEach(g=>{
+if(g.fecha){
+let mesIndex = new Date(g.fecha).getMonth()
+let nombreMes = meses[mesIndex]
+
+if(!porMes[nombreMes]) porMes[nombreMes]=0
+porMes[nombreMes]+=g.monto
+}
+})
+
+if(chartMes) chartMes.destroy()
+chartMes = new Chart(graficaMes,{
+type:"line",
+data:{
+labels:Object.keys(porMes),
+datasets:[{data:Object.values(porMes)}]
+}
+})
+
+}
+
+// EDITAR
+function editar(i){
+let nuevo = prompt("Nuevo monto:")
+if(nuevo){
+data[i].monto = parseFloat(nuevo)
+localStorage.setItem("gastos",JSON.stringify(data))
+filtrar()
+}
+}
+
+// ELIMINAR
+function eliminar(i){
+if(confirm("Eliminar gasto?")){
+data.splice(i,1)
+localStorage.setItem("gastos",JSON.stringify(data))
+filtrar()
+}
+}
+
+// INIT
+if(empleados.length>0){
+select.value=empleados[0]
+filtrar()
+}
+
+</script>
+
+</body>
+</html>
