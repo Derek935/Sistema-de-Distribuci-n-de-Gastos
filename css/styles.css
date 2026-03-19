@@ -128,3 +128,96 @@ padding:20px;
 font-size:22px;
 }
 
+/* ------ ESTILOS PARA REGISTROGASTOS ------ */
+
+/* HEADER */
+.header-registro {
+  display: flex;
+  align-items: center;
+  padding: 20px 40px;
+  font-size: 28px;
+  font-weight: bold;
+  border-bottom: 1px solid #e5e5e5;
+  background: white;
+}
+
+.logo {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.navbar {
+    display: inline-flex;
+    background: #eaeaea;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.nav-item {
+    padding: 8px 15px;
+    border-radius: 15px;
+    text-decoration: none;
+    color: #333;
+}
+
+.nav-item.active {
+    background: #fff;
+}
+
+/* CARD */
+.card {
+    background: #fff;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+/* INPUTS */
+input, select, textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+}
+
+/* GRID */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* LISTA */
+.lista {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* RUBROS */
+.rubro {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.rubro input {
+    width: 120px;
+    text-align: right;
+}
+
+/* BOTÓN */
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: #020617;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin-top: 15px;
+    cursor: pointer;
+}
