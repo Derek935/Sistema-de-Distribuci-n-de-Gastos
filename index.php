@@ -32,9 +32,16 @@
         <input name="usuario" placeholder="Número de empleado / Boleta" />
 
         <label>Contraseña</label>
+<<<<<<< HEAD
         <input name="password" type="password" placeholder="Ingresa tu contraseña" />
         <input name="btnlogin" class="btn" type="submit" value="→ Ingresar">
       </form>
+=======
+        <input name="password" type="password" placeholder="Ingresa tu contraseña"/>
+        <input name="btnlogin" class="btn" type="submit" value ="→ Ingresar">
+        <a href="recovery.php">Recuperar Contraseña</a>
+        </form>
+>>>>>>> f9b4dc83a62dda64e21b25f7cd3036c958dbc135
 
     </div>
   </div>
