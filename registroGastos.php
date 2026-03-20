@@ -1,12 +1,20 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+
+  ?>
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <title>Sistema de Gastos</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/styles.css" />
     <script src="js/app.js"></script>
@@ -17,13 +25,22 @@
     <!-- HEADER -->
     <div class="header-registro">
         <div class="logo">📄 Soluciones de Tecnología Grupo Dos</div>
-
+        
         <div class="navbar">
             <a class="nav-item">Login</a>
             <a class="nav-item">Gastos</a>
             <a class="nav-item active">Dashboard</a>
+            <div class="main-content">
+       
+        </div>
         </div>
     </div>
+         <div class="header">
+            <h1>Panel de Control</h1>
+            <div class="user-info">
+                <span>👤 <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                <a href='logout.php' class="btn-logout">Cerrar Sesión</button>
+            </div>
 
     <div class="card">
 
