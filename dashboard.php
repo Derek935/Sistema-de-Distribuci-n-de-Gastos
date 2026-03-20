@@ -18,7 +18,12 @@
     </head>
 
     <body>
-      <header>Dashboard Control de Gastos</header>
+      <header>Soluciones de Tecnología Grupo Dos</header>
+      <div class="navbar">
+            <a class="nav-item">Login</a>
+            <a class="nav-item">Gastos</a>
+            <a class="nav-item active">Dashboard</a>
+      </div>
 
       <div class="container-dashboard">
         <!-- TARJETAS -->

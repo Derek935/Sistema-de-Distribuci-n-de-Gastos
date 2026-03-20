@@ -1,6 +1,113 @@
+:root{
+    --primario: ;
+    --primariOscuro: ;
+    --secundario: ;
+    --secundariOscuro: ;
+    --blanco: ;
+    --negro: ;
+
+    --fuentePrincipal: 'Outfit', cursive;
+}
 *{
   font-family: Outfit;
 }
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+/* ------ Estilos Globales ------ */
+body{
+    background-color: var(--primario);
+    font-size: 1.6rem;
+    line-height: 1.5;
+}
+p{
+    font-size: 1.8rem;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--blanco);
+}
+a{
+    text-decoration: none;
+}
+img{
+    width: 100%;
+}
+.contenedor{
+
+    flex:1;
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    max-width: 130rem;
+    margin: 0 auto;
+    margin-top: 20px;
+    margin-bottom: 30px;
+
+}
+h1, h2,h3{
+    text-align: center;
+    color: var(--secundario);
+    font-family: var(--fuentePrincipal);
+}
+h1{
+    font-size: 4rem;
+}
+h2{
+    font-size: 3.0rem;
+    display: inline-flex;
+    margin: 0;
+}
+h3{
+    font-size: 2.4rem;
+    display: inline-flex;
+    margin: 0;
+}
+/* Header */
+.header{
+    background:#1f2937;
+    color:white;
+    padding:20px;
+    font-size:22px;
+    /* font-weight: bold; */
+}
+/* .header__logo{
+    margin: 3rem 0;
+} */
+
+.icon{
+    display: inline;
+    width: 25px;  /* controla tamaño */
+    height: 25px;
+    gap: 10px;
+}
+
+label {
+    display: flex;
+    align-items: center; /* centra verticalmente */
+    gap: 10px; /* espacio entre checkbox y texto */
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.check{
+    width: 16px;
+    height: 16px;
+    margin: 0; /* elimina margen raro */
+}
+
+label span {
+    line-height: 1; /* evita que empuje hacia abajo */
+}
+
+
+
+
+
+
 
 body {
   background:#f4f6f9;
@@ -12,7 +119,7 @@ header {
   align-items: center;
   padding: 20px 40px;
   font-size: 28px;
-  font-weight: bold;
+
   border-bottom: 1px solid #e5e5e5;
   background: white;
 }
@@ -41,11 +148,11 @@ header {
   margin-bottom: 25px;
 }
 
-label {
+/* label {
   font-weight: 600;
   display: block;
   margin-top: 10px;
-}
+} */
 
 input {
   width: 100%;
@@ -144,11 +251,6 @@ font-size:22px;
   background: white;
 }
 
-.logo {
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
 .navbar {
     display: inline-flex;
     background: #eaeaea;
@@ -192,6 +294,12 @@ input, select, textarea {
     gap: 20px;
 }
 
+.grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 50px;
+}
+
 /* LISTA */
 .lista {
     max-height: 150px;
@@ -205,12 +313,14 @@ input, select, textarea {
 .rubro {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
+    align-items: center;
 }
 
 .rubro input {
     width: 120px;
     text-align: right;
+    
 }
 
 /* BOTÓN */
