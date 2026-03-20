@@ -1,6 +1,55 @@
+<?php 
+session_start();
+
+if (isset($_SESSION['user_id'])) {
+    header("Location: registroGastos.php");
+    exit();
+}
+
+$error = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = trim($_POST['usuario']);
+    $password = $_POST['password'];
+    
+    if (!empty($username) && !empty($password)) {
+        require 'conexion/conexion.php';
+
+        $stmt = $pdo->prepare("SELECT * FROM nom_encargados WHERE nombres = ?");
+        $stmt->execute([$username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+
+
+        if ($password == $user['contraseña']) {
+            $_SESSION['user_id'] = $user['id_encargado'];
+            $_SESSION['username'] = $user['nombres'];
+            
+            header("Location: registroGastos.php");
+            exit();
+        } else {
+            $error = "Usuario o contraseña incorrectos.";
+        }
+    } else {
+        $error = "Por favor complete todos los campos.";
+    }
+}
+?>
+
 <!doctype html>
 <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/app.js"></script>
+    <title>Soluciones de Tecnología Grupo Dos</title>
+  </head>
+  <style></style>
+  <body>
+    <header>Soluciones de Tecnología Grupo Dos</header>
 
+<<<<<<< HEAD
 <head>
   <meta charset="UTF-8" />
   
@@ -24,31 +73,37 @@
   <div class="container">
     <div class="login-box">
       <form method="post" action="">
+=======
+    <div class="container">
+      <div class="login-box">
+>>>>>>> 09f81b30ec8cf4dbddd5b409c9984321c1c57bca
         <h2>→ Iniciar Sesión</h2>
-        <?php
-        include("conexion/conexion.php");
-        include("conexion/conexion_login.php");
-
-
-        ?>
+      
+        <?php if($error): ?>
+            <div class="error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        <form method="post">
+        
         <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
 
         <label>Usuario</label>
         <input name="usuario" placeholder="Número de empleado / Boleta" />
 
         <label>Contraseña</label>
+<<<<<<< HEAD
         <input name="password" type="password" placeholder="Ingresa tu contraseña" />
         <input name="btnlogin" class="btn" type="submit" value="→ Ingresar">
       </form>
+=======
+>>>>>>> 09f81b30ec8cf4dbddd5b409c9984321c1c57bca
         <input name="password" type="password" placeholder="Ingresa tu contraseña"/>
         <input name="btnlogin" class="btn" type="submit" value ="→ Ingresar">
         <a href="recovery.php">Recuperar Contraseña</a>
         </form>
 
+      </div>
     </div>
-  </div>
 
-  <script></script>
-</body>
-
+    <script></script>
+  </body>
 </html>

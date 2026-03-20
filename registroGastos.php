@@ -1,9 +1,21 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+
+  ?>
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <title>Sistema de Gastos</title>
+<<<<<<< HEAD
 
     <link rel="stylesheet" href="css/normalize.css">
 
@@ -11,6 +23,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     
+=======
+    <link rel="stylesheet" href="css/normalize.css">
+>>>>>>> 09f81b30ec8cf4dbddd5b409c9984321c1c57bca
     <link rel="stylesheet" href="css/styles.css" />
     <script src="js/app.js"></script>
 </head>
@@ -18,6 +33,7 @@
 <body>
 
     <!-- HEADER -->
+<<<<<<< HEAD
     <div class="header">
         <div class="logo">Soluciones de Tecnología Grupo Dos</div>
     </div>
@@ -25,7 +41,26 @@
             <a class="nav-item">Login</a>
             <a class="nav-item">Gastos</a>
             <a class="nav-item active">Dashboard</a>
+=======
+    <div class="header-registro">
+        <div class="logo">📄 Soluciones de Tecnología Grupo Dos</div>
+        
+        <div class="navbar">
+            <a class="nav-item">Login</a>
+            <a class="nav-item">Gastos</a>
+            <a class="nav-item active">Dashboard</a>
+            <div class="main-content">
+       
+        </div>
+        </div>
+>>>>>>> 09f81b30ec8cf4dbddd5b409c9984321c1c57bca
     </div>
+         <div class="header">
+            <h1>Panel de Control</h1>
+            <div class="user-info">
+                <span>👤 <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                <a href='logout.php' class="btn-logout">Cerrar Sesión</button>
+            </div>
 
     <div class="contenedor">
         <img src="assets/add.png" class="icon" alt="">

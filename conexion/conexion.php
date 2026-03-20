@@ -1,11 +1,19 @@
 <?php
 
+$host ='localhost';
+$port='3307';
+$dbname ='almacen_db';
+$user = 'root';
+$pass='1234';
 
-   $conn = mysqli_connect("localhost","root","1234","almacen_db","3306");
-    $conn->set_charset("utf8mb4");
-  if ($conn->connect_error) {
-    die("Error: Imposible conectarse: " . $conn->connect_error);
-  }
+
+   try {
+        $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8",$user,$pass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+   } catch (PDOException $e) {
+    die("Error de conexion:" .$e->getMessage());
+    //throw $th;
+   }
 
 
  
