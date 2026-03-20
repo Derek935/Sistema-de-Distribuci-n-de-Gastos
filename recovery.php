@@ -14,7 +14,7 @@
     <div class="container">
       <div class="login-box">
         <form method="post" action="">
-        <h2>→ Iniciar Sesión</h2>
+        <h2>Recuperar Contraseña</h2>
         <?php 
           include ("conexion/conexion.php"); 
           include ("conexion/conexion_login.php"); 

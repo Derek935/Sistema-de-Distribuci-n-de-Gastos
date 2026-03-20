@@ -29,6 +29,7 @@
         <label>Contraseña</label>
         <input name="password" type="password" placeholder="Ingresa tu contraseña"/>
         <input name="btnlogin" class="btn" type="submit" value ="→ Ingresar">
+        <a href="recovery.php">Recuperar Contraseña</a>
         </form>
 
       </div>
