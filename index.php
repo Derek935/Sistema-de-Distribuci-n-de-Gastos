@@ -49,34 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <body>
     <header>Soluciones de Tecnología Grupo Dos</header>
 
-<<<<<<< HEAD
-<head>
-  <meta charset="UTF-8" />
-  
-  <link rel="stylesheet" href="css/normalize.css">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="css/styles.css" />
-  <script src="js/app.js"></script>
-
-  
-  <title>Soluciones de Tecnología Grupo Dos</title>
-</head>
-<style></style>
-
-<body>
-  <header>Soluciones de Tecnología Grupo Dos</header>
-
-  <div class="container">
-    <div class="login-box">
-      <form method="post" action="">
-=======
     <div class="container">
       <div class="login-box">
->>>>>>> 09f81b30ec8cf4dbddd5b409c9984321c1c57bca
         <h2>→ Iniciar Sesión</h2>
       
         <?php if($error): ?>
@@ -90,12 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input name="usuario" placeholder="Número de empleado / Boleta" />
 
         <label>Contraseña</label>
-<<<<<<< HEAD
-        <input name="password" type="password" placeholder="Ingresa tu contraseña" />
-        <input name="btnlogin" class="btn" type="submit" value="→ Ingresar">
-      </form>
-=======
->>>>>>> 09f81b30ec8cf4dbddd5b409c9984321c1c57bca
         <input name="password" type="password" placeholder="Ingresa tu contraseña"/>
         <input name="btnlogin" class="btn" type="submit" value ="→ Ingresar">
         <a href="recovery.php">Recuperar Contraseña</a>

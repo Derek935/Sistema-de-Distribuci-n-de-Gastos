@@ -1,10 +1,10 @@
 <?php
 
 $host ='localhost';
-$port='3306';
+$port='4306';
 $dbname ='almacen_db';
 $user = 'root';
-$pass='1234';
+$pass='root';
 
 
    try {
