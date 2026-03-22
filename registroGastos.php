@@ -12,7 +12,7 @@ session_start();
 
 <head>
     <meta charset="UTF-8">
-    <title>Sistema de Gastos</title>
+    <title>Sistema de Distribución de Gastos</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

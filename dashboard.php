@@ -1,4 +1,11 @@
+<?php
+session_start();
 
+//if (!isset($_SESSION['user_id'])) {
+//    header("Location: index.php");
+//    exit();
+//}
+?>
   
   <!doctype html>
   <html lang="es">
@@ -20,17 +27,26 @@
     </head>
 
     <body>
-      <header>Soluciones de Tecnología Grupo Dos</header>
-      <div class="navbar">
+     <!-- HEADER -->
+    <div class="header">
+        <div class="logo">Soluciones de Tecnología Grupo Dos</div>
+        
+        <div class="navbar">
+            <span>👤 <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                <a href='logout.php' class="nav-item">Cerrar Sesión</button>
             <a class="nav-item">Login</a>
             <a class="nav-item">Gastos</a>
             <a class="nav-item active">Dashboard</a>
-      </div>
+            <div class="main-content">
+        </div>
+        </div>
+    </div>
 
-      <div class="container-dashboard">
+      <div class="contenedor">
+        
         <!-- TARJETAS -->
 
-        <div class="cards">
+        <div class="grid-4">
           <div class="card">
             <h3>Total Gastos</h3>
             <p id="total">$0</p>
@@ -40,7 +56,38 @@
             <h3>Registros</h3>
             <p id="registros">0</p>
           </div>
+
+          <div class="card">
+            <h3>Gasto Promedio Por Empleado</h3>
+            <p id="registros">0</p>
+          </div>
+
+          <div class="card">
+            <h3>Categoría Principal</h3>
+            <p id="registros">0</p>
+          </div>
         </div>
+
+      <!-- ------ Gráficas ------ -->
+
+      <div class="grid-3">
+          <div class="card">
+            <h3>Distribución por Categoría </h3>
+            <canvas id="pieChart"></canvas>
+          </div>
+
+          <div class="card">
+            <h3>Top 10 Empleados con Mayor Gasto</h3>
+            <canvas id="barChart"></canvas>
+          </div>
+
+          <div class="card">
+            <h3>Gastos por Mes (Top 6)</h3>
+            <canvas id="monthChart"></canvas>
+          </div>
+
+        </div>
+
 
         <!-- TABLA -->
 
@@ -58,6 +105,17 @@
 
           <tbody id="tabla"></tbody>
         </table>
+        
+        
+        <div class="contenedor ">
+          <h3>Selecciona un Período para Consultar un Reporte</h3>
+          <div class="grid-4">
+            <button class="btn">Diario</button>
+            <button class="btn">Semanal</button>
+            <button class="btn">Quincenal</button>
+            <button class="btn">Mensual</button>
+          </div>
+        </div>
 
         <br />
 
@@ -74,6 +132,48 @@
       </div>
 
       <script>
+
+      // ------ DATOS DUMMY PARA LAS GRÁFICAS ------
+
+// PIE CHART
+new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: {
+        labels: ['Gasolina', 'Hotel', 'Casetas', 'Materiales', 'Viático mantenedor', 'Viático técnico'],
+        datasets: [{
+            data: [30, 25, 10, 15, 10, 10],
+        }]
+    }
+});
+
+// BAR CHART (empleados)
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Juan M.', 'Oscar G.', 'Rosario V.', 'Luis P.', 'Carlos R.'],
+        datasets: [{
+            data: [4500, 4400, 2500, 2000, 1500],
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } }
+    }
+});
+
+// BAR CHART (meses)
+new Chart(document.getElementById('monthChart'), {
+    type: 'bar',
+    data: {
+        labels: ['ene 2025', 'feb 2025'],
+        datasets: [{
+            data: [9000, 5500],
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } }
+    }
+});
+
         /* DATOS ORIGINALES DEL PROYECTO */
 
         const expenses = [

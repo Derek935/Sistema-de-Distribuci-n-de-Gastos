@@ -182,9 +182,13 @@ button:hover {
 /* ------ Dashboard ----- */
 
 .container-dashboard{
-max-width:1300px;
+max-width:130rem;
 margin:auto;
 padding:20px;
+}
+
+canvas {
+    max-height: 220px;
 }
 
 .cards{
@@ -206,6 +210,8 @@ table{
 width:100%;
 border-collapse:collapse;
 background:white;
+margin-top: 20px;
+margin-bottom: 20px;
 }
 
 th,td{
