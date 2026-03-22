@@ -285,6 +285,7 @@ input, select, textarea {
     border-radius: 8px;
     border: 1px solid #ccc;
     margin-top: 5px;
+    resize: none;
 }
 
 /* GRID */
@@ -292,13 +293,13 @@ input, select, textarea {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+    margin-top: 10px;
 }
 
 .grid-3 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    column-gap: 20px;
-    row-gap: 10px;
+    gap: 20px;
 }
 
 .grid-4 {
@@ -321,13 +322,12 @@ input, select, textarea {
 .rubro {
     display: block;
     justify-content: space-between;
-    /* margin-bottom: 10px; */
     align-items: center;
 }
 
 .rubro input {
     display: block;
-    width: 120px;
+    width: 90%;
     text-align: right;
     
 }

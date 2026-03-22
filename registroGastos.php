@@ -67,7 +67,7 @@ session_start();
         </div>
 
         <h4>Técnico</h4>
-        <div class="lista">
+        <div class="lista grid-4">
             <label><input type="checkbox" class="check" > Jonathan Rodríguez - Tepic</label>
             <label><input type="checkbox" class="check" > Luis Pérez - CDMX</label>
         </div>
@@ -88,10 +88,6 @@ session_start();
                     <option>EALV</option>
                 </select>
             </div>
-
-        </div>
-
-        <div class="grid-2">
 
             <div>
                 <label>Fecha de salida</label>
@@ -115,10 +111,10 @@ session_start();
         <div class="rubro"><span>Hotel</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Casetas</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Materiales</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Accesos vía</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Impuesto de Acceso de Vía</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Viático mantenedor</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Viático técnico</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Recargas</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Recargas Telefónicas</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Otros</span><input type="number"   placeholder="$0.00"></div>
 
         </div>

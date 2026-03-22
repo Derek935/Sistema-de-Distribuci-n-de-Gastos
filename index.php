@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
 
         <label>Usuario</label>
-        <input name="usuario" placeholder="Número de empleado / Boleta" />
+        <input name="usuario" placeholder="Ingresa tu usuario" />
 
         <label>Contraseña</label>
         <input name="password" type="password" placeholder="Ingresa tu contraseña"/>
