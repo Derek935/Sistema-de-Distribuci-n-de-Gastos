@@ -9,7 +9,7 @@
     --fuentePrincipal: 'Outfit', cursive;
 }
 *{
-  font-family: Outfit;
+    font-family: Outfit;
 }
 html {
     box-sizing: border-box;
@@ -42,7 +42,7 @@ img{
     padding:20px;
     border-radius:8px;
     box-shadow:0 2px 6px rgba(0,0,0,0.1);
-    max-width: 130rem;
+    max-width: 150rem;
     margin: 0 auto;
     margin-top: 20px;
     margin-bottom: 30px;
@@ -182,7 +182,7 @@ button:hover {
 /* ------ Dashboard ----- */
 
 .container-dashboard{
-max-width:1200px;
+max-width:1300px;
 margin:auto;
 padding:20px;
 }
@@ -297,7 +297,15 @@ input, select, textarea {
 .grid-3 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 50px;
+    column-gap: 20px;
+    row-gap: 10px;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
 }
 
 /* LISTA */
@@ -311,13 +319,14 @@ input, select, textarea {
 
 /* RUBROS */
 .rubro {
-    display: flex;
+    display: block;
     justify-content: space-between;
     /* margin-bottom: 10px; */
     align-items: center;
 }
 
 .rubro input {
+    display: block;
     width: 120px;
     text-align: right;
     

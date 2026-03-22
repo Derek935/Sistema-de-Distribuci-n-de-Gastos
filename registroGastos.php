@@ -1,11 +1,11 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit();
-}
-  ?>
+//if (!isset($_SESSION['user_id'])) {
+//    header("Location: index.php");
+//    exit();
+//}
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -13,6 +13,11 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Sistema de Gastos</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/styles.css" />
     <script src="js/app.js"></script>
@@ -21,8 +26,8 @@ if (!isset($_SESSION['user_id'])) {
 <body>
 
     <!-- HEADER -->
-    <div class="header-registro">
-        <div class="logo">📄 Soluciones de Tecnología Grupo Dos</div>
+    <div class="header">
+        <div class="logo">Soluciones de Tecnología Grupo Dos</div>
         
         <div class="navbar">
             <span>👤 <?php echo htmlspecialchars($_SESSION['username']); ?></span>
@@ -52,7 +57,7 @@ if (!isset($_SESSION['user_id'])) {
         <h3>Seleccionar Empleado</h3>
 
         <h4>Mantenedor</h4>
-        <div class="lista">
+        <div class="lista grid-4">
             <label><input type="checkbox" class="check" > Juan Moreno - Guadalajara</label>
             <label><input type="checkbox" class="check" > Oscar González - Tepic</label>
             <label><input type="checkbox" class="check" > Rosario Valdez - Mochis</label>
@@ -106,15 +111,15 @@ if (!isset($_SESSION['user_id'])) {
 
         <div class="grid-3">
 
-        <div class="rubro"><span>Gasolina</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
-        <div class="rubro"><span>Hotel</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
-        <div class="rubro"><span>Casetas</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
-        <div class="rubro"><span>Materiales</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
-        <div class="rubro"><span>Accesos vía</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
-        <div class="rubro"><span>Viático mantenedor</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
-        <div class="rubro"><span>Viático técnico</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
-        <div class="rubro"><span>Recargas</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
-        <div class="rubro"><span>Otros</span><input type="number"  class="rubro-input" placeholder="$0.00"></div>
+        <div class="rubro"><span>Gasolina</span><input type="number"  placeholder="$0.00"></div>
+        <div class="rubro"><span>Hotel</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Casetas</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Materiales</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Accesos vía</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Viático mantenedor</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Viático técnico</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Recargas</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Otros</span><input type="number"   placeholder="$0.00"></div>
 
         </div>
 
