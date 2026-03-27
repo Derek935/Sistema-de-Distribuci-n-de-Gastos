@@ -128,6 +128,10 @@ if (!isset($_SESSION['user_id'])) {
 
     </div>
 
+<!-- FOOTER -->
+<footer class="footer">
+<p>© 2026 Soluciones de Tecnología Grupo Dos | Todos los derechos reservados</p>
+</footer>
 
 
 </body>
