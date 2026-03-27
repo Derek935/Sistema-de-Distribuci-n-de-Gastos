@@ -344,8 +344,14 @@ input, select, textarea {
     padding: 12px;
     background: #020617;
     color: white;
-    border: none;
-    border-radius: 8px;
-    margin-top: 15px;
-    cursor: pointer;
-}
+
+/* FOOTER */    
+  .footer {
+    background: #1f2937;
+    color: var(--blanco);
+    text-align: center;
+    padding: 15px;
+    font-size: 1.4rem;
+    margin-top: auto;
+}  
+  
