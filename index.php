@@ -15,15 +15,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($username) && !empty($password)) {
         require 'conexion/conexion.php';
 
-        $stmt = $pdo->prepare("SELECT * FROM nom_encargados WHERE nombres = ?");
+        $stmt = $pdo->prepare("SELECT * FROM usuario WHERE nombre = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
+        print_r($user);
 
 
-        if ($password == $user['contraseña']) {
-            $_SESSION['user_id'] = $user['id_encargado'];
-            $_SESSION['username'] = $user['nombres'];
+        if ($password == $user['password_hash']) {
+            $_SESSION['user_id'] = $user['id_usuario'];
+            $_SESSION['username'] = $user['nombre'];
+            
             
             header("Location: registroGastos.php");
             exit();

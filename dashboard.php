@@ -34,9 +34,8 @@ if (!isset($_SESSION['user_id'])) {
         <div class="navbar">
             <span>👤 <?php echo htmlspecialchars($_SESSION['username']); ?></span>
                 <a href='logout.php' class="nav-item">Cerrar Sesión</button>
-            <a class="nav-item">Login</a>
-            <a class="nav-item">Gastos</a>
-            <a class="nav-item active">Dashboard</a>
+                <a href='registroGastos.php' class="nav-item" >Gastos</a>
+                <a href='dashboard.php' class="nav-item active" href='dashboard.php'>Dashboard</a>
             <div class="main-content">
         </div>
         </div>

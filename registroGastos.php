@@ -32,14 +32,28 @@ if (!isset($_SESSION['user_id'])) {
         <div class="navbar">
             <span>👤 <?php echo htmlspecialchars($_SESSION['username']); ?></span>
                 <a href='logout.php' class="nav-item">Cerrar Sesión</button>
-            <a class="nav-item">Login</a>
-            <a class="nav-item">Gastos</a>
-            <a class="nav-item active" href='dashboard.php'>Dashboard</a>
+                <a href='registroGastos.php' class="nav-item" >Gastos</a>
+                <a href='dashboard.php' class="nav-item active" href='dashboard.php'>Dashboard</a>
             <div class="main-content">
        
         </div>
         </div>
     </div>
+
+      <div class="contenedor">
+        <img src="assets/add.png" class="icon" alt="">
+        <h3>Registrar un periodo de Gasto</h3>
+            <div>
+                <label>Fecha de salida</label>
+                <input type="date">
+            </div>
+
+            <div>
+                <label>Fecha de termino</label>
+                <input type="date">
+            </div>
+            <button class="btn">+ Añadir Periodo</button>
+        </div>
 
     <div class="contenedor">
         <img src="assets/add.png" class="icon" alt="">
@@ -80,24 +94,15 @@ if (!isset($_SESSION['user_id'])) {
                     <option>Hermosillo</option>
                     <option>Puebla</option>
                 </select>
-            </div>
+            </div>   
 
             <div>
                 <label>Programa</label>
                 <select>
-                    <option>EALV</option>
-                </select>
-            </div>
-
-            <div>
-                <label>Fecha de salida</label>
-                <input type="date">
-            </div>
-
-            <div>
-                <label>Tipo de salida</label>
-                <select>
-                    <option>Fortuito</option>
+                    <option>Mantenimiento</option>
+                    <option>Instalación</option>
+                    <option>Falla</option>
+                    <option>Fortuita</option>
                 </select>
             </div>
 
@@ -114,8 +119,8 @@ if (!isset($_SESSION['user_id'])) {
         <div class="rubro"><span>Impuesto de Acceso de Vía</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Viático mantenedor</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Viático técnico</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Recargas Telefónicas</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Otros</span><input type="number"   placeholder="$0.00"></div>
+        <div class="rubro"><span>Recargas </span><input type="number"   placeholder="$0.00"></div>
+
 
         </div>
 
