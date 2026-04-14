@@ -14,12 +14,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if (!empty($username) && !empty($password)) {
         require 'conexion/conexion.php';
-
+        
         $stmt = $pdo->prepare("SELECT * FROM usuario WHERE nombre = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        print_r($user);
+       
 
 
         if ($password == $user['password_hash']) {

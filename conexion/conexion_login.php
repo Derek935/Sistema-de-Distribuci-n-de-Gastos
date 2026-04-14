@@ -7,6 +7,7 @@ if(!empty($_POST["btnlogin"])){
         
         $usuario = $_POST["usuario"];
         $clave = $_POST["password"];
+        
         $sql = $conn->query ("SELECT * FROM nom_encargados WHERE nombres='$usuario' AND contraseña='$clave'");
         
         if($datos=$sql->fetch_object()){

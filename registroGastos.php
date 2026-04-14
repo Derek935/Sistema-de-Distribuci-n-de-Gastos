@@ -1,10 +1,43 @@
 <?php
 session_start();
+require 'conexion/conexion.php';
+
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
+    $stmt = $pdo->query("SELECT id_localidad,nombre_localidad FROM localidad");
+    
+     $periodo = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt2 = $pdo->query("SELECT id_grupo,nombre_grupo FROM grupo");
+    
+    $grupo = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt3 = $pdo->query("SELECT id_mantenedor,nombre FROM mantenedor");
+    
+    $mantene = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt4 = $pdo->query("SELECT id_tecnico,nombre FROM tecnico");
+    
+    $tecnico = $stmt4->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt5 = $pdo->query("SELECT id_localidad,nombre_localidad FROM localidad");
+    
+    $loacalidad = $stmt5->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt6 = $pdo->query("SELECT id_programa,programa FROM programa");
+    
+    $programa = $stmt6->fetchAll(PDO::FETCH_ASSOC);
+        
+    foreach($grupo as $dato) {
+    echo $dato['id_grupo'];  
+}
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -40,30 +73,50 @@ if (!isset($_SESSION['user_id'])) {
         </div>
     </div>
 
+      <form method="POST">          
       <div class="contenedor">
-        <img src="assets/add.png" class="icon" alt="">
+            <img src="assets/add.png" class="icon" alt="">
         <h3>Registrar un periodo de Gasto</h3>
             <div>
                 <label>Fecha de salida</label>
-                <input type="date">
+                <input name="feini" type="date">
             </div>
 
             <div>
                 <label>Fecha de termino</label>
-                <input type="date">
+                <input name="fefin" type="date">
             </div>
-            <button class="btn">+ Añadir Periodo</button>
+            <div>
+                <label>localidad</label>
+                <select name="localidad" required>
+                    <option value="">Seleccione una localidad</option>
+                    <?php foreach($periodo as $peri): ?>
+                        <option value="<?php echo $peri['id_localidad']; ?>"
+                                <?php echo ($peri['id_localidad'] ) ; ?>>
+                           <?php echo htmlspecialchars($peri['nombre_localidad']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+                <button type="submit" name="btnperiodo" class="btn">+ Añadir Periodo</button>
         </div>
+        </form>
 
     <div class="contenedor">
         <img src="assets/add.png" class="icon" alt="">
         <h3>Registrar Gasto por Empleado</h3>
 
         <label>Seleccionar Empresa</label>
-        <select>
-            <option>Ferromex</option>
-            <option>Ferrosur</option>
-        </select>
+       <select name="Empresa" required>
+                    <option value="">Seleccione una Empresa</option>
+                    <?php foreach($grupo as $gru): ?>
+                        <option value="<?php echo $gru['id_grupo']; ?>"
+                                <?php echo ($gru['id_grupo'] ) ; ?>>
+                           <?php echo htmlspecialchars($gru['nombre_grupo']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
 
         <label>Filtrar por nombre o región</label>
         <input type="text" id="buscador" placeholder="Buscar empleado...">
@@ -71,38 +124,56 @@ if (!isset($_SESSION['user_id'])) {
         <h3>Seleccionar Empleado</h3>
 
         <h4>Mantenedor</h4>
-        <div class="lista grid-4">
-            <label><input type="checkbox" class="check" > Juan Moreno - Guadalajara</label>
-            <label><input type="checkbox" class="check" > Oscar González - Tepic</label>
-            <label><input type="checkbox" class="check" > Rosario Valdez - Mochis</label>
-            <label><input type="checkbox" class="check" > Juan Moreno - Guadalajara</label>
-            <label><input type="checkbox" class="check" > Oscar González - Tepic</label>
-            <label><input type="checkbox" class="check" > Rosario Valdez - Mochis</label>
+        <div>
+            <select name="Mantenedor" required>
+                    <option value="">Seleccione un Mantenerdor</option>
+                    <?php foreach($mantene as $mante): ?>
+                        <option value="<?php echo $mante['id_mantenedor']; ?>"
+                                <?php echo ($mante['id_mantenedor'] ) ; ?>>
+                           <?php echo htmlspecialchars($mante['nombre']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
         </div>
 
         <h4>Técnico</h4>
-        <div class="lista grid-4">
-            <label><input type="checkbox" class="check" > Jonathan Rodríguez - Tepic</label>
-            <label><input type="checkbox" class="check" > Luis Pérez - CDMX</label>
+        <div>
+           <select name="Tecnico" required>
+                    <option value="">Seleccione un Tecnico</option>
+                    <?php foreach($tecnico as $tec): ?>
+                        <option value="<?php echo $tec['id_tecnico']; ?>"
+                                <?php echo ($tec['id_tecnico'] ) ; ?>>
+                           <?php echo htmlspecialchars($tec['nombre']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
         </div>
 
         <div class="grid-2">
 
             <div>
                 <label>Región</label>
-                <select>
-                    <option>Hermosillo</option>
-                    <option>Puebla</option>
+                <select name="Region" required>
+                    <option value="">Seleccione una Region</option>
+                    <?php foreach($loacalidad as $loca): ?>
+                        <option value="<?php echo $loca['id_localidad']; ?>"
+                                <?php echo ($loca['id_localidad'] ) ; ?>>
+                           <?php echo htmlspecialchars($loca['nombre_localidad']); ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>   
 
             <div>
                 <label>Programa</label>
-                <select>
-                    <option>Mantenimiento</option>
-                    <option>Instalación</option>
-                    <option>Falla</option>
-                    <option>Fortuita</option>
+                <select name="Programa" required>
+                    <option value="">Seleccione un Programa</option>
+                    <?php foreach($programa as $pro): ?>
+                        <option value="<?php echo $pro['id_programa']; ?>"
+                                <?php echo ($pro['id_programa'] ) ; ?>>
+                           <?php echo htmlspecialchars($pro['programa']); ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
@@ -120,7 +191,7 @@ if (!isset($_SESSION['user_id'])) {
         <div class="rubro"><span>Viático mantenedor</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Viático técnico</span><input type="number"   placeholder="$0.00"></div>
         <div class="rubro"><span>Recargas </span><input type="number"   placeholder="$0.00"></div>
-
+        <div class="rubro"><span>Otros</span><input type="number"   placeholder="$0.00"></div>
 
         </div>
 
