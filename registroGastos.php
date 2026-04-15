@@ -167,12 +167,11 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
 
                 <select name="Programa" required>
                     <option value="">Seleccione un Rubro</option>
-                    <?php foreach($rubro as $ru): ?>
-                        <option value="<?php echo $ru['id_rubro']; ?>"
-                                <?php echo ($ru['id_rubro'] ) ; ?>>
+                    <?php foreach($rubros as $ru): ?>
+                        <option value="<?php echo $ru['id_rubro']; ?>">
                            <?php echo htmlspecialchars($ru['nombre_rubro']); ?>
                         </option>
-                    <?php endforeach; ?>
+                    <?php endforeach; ?>    
                 </select>
                 <input type="number" name="rubro"  placeholder="$0.00">
 
