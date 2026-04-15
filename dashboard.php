@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit();
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: index.php");
+//     exit();
+// }
 ?>
   
   <!doctype html>
@@ -45,7 +45,7 @@ if (!isset($_SESSION['user_id'])) {
         
         <!-- TARJETAS -->
 
-        <div class="grid-4">
+        <div class="grid-3">
           <div class="card">
             <h3>Total Gastos</h3>
             <p id="total">$0</p>
@@ -53,11 +53,6 @@ if (!isset($_SESSION['user_id'])) {
 
           <div class="card">
             <h3>Registros</h3>
-            <p id="registros">0</p>
-          </div>
-
-          <div class="card">
-            <h3>Gasto Promedio Por Empleado</h3>
             <p id="registros">0</p>
           </div>
 
@@ -76,12 +71,12 @@ if (!isset($_SESSION['user_id'])) {
           </div>
 
           <div class="card">
-            <h3>Top 10 Empleados con Mayor Gasto</h3>
+            <h3>Empleados con Mayor Gasto</h3>
             <canvas id="barChart"></canvas>
           </div>
 
           <div class="card">
-            <h3>Gastos por Mes (Top 6)</h3>
+            <h3>Dinero Gastado por Mes</h3>
             <canvas id="monthChart"></canvas>
           </div>
 
