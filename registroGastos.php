@@ -12,6 +12,7 @@ $grupos = $pdo->query("SELECT id_grupo, nombre_grupo FROM grupo WHERE activo = 1
 $programas = $pdo->query("SELECT id_programa, programa FROM programa ORDER BY programa ASC")->fetchAll(PDO::FETCH_ASSOC);
 $rubros = $pdo->query("SELECT id_rubro, nombre_rubro FROM rubro WHERE activo = 1 ORDER BY nombre_rubro ASC")->fetchAll(PDO::FETCH_ASSOC);
 
+
 // ✅ Función helper para generar options
 function generarOptions($datos, $valueField, $textField, $selected = '') {
     $options = '<option value="">-- Seleccione --</option>';
@@ -71,18 +72,7 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
                 <label>Fecha de termino</label>
                 <input name="fefin" type="date">
             </div>
-            <div>
-                <label>localidad</label>
-                <select name="localidad" id="selectLocalidad" required>
-                    <option value="">Seleccione una localidad</option>
-                    <?php foreach($pdo->query("SELECT id_localidad, nombre_localidad FROM localidad WHERE estado=1") as $loc): ?>
-                        <option value="<?php echo $loc['id_localidad']; ?>">
-                            <?php echo htmlspecialchars($loc['nombre_localidad']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                </select>
-            </div>
+            
 
                 <button type="submit" name="btnperiodo" class="btn">+ Añadir Periodo</button>
         </div>
@@ -139,11 +129,17 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
         <div class="grid-2">
 
             <div>
-                <label>Región</label>
-                <select name="Region" required>
-                    
+                <label>localidad</label>
+                <select name="localidad" id="selectLocalidad" required>
+                    <option value="">Seleccione una localidad</option>
+                    <?php foreach($pdo->query("SELECT id_localidad, nombre_localidad FROM localidad WHERE estado=1") as $loc): ?>
+                        <option value="<?php echo $loc['id_localidad']; ?>">
+                            <?php echo htmlspecialchars($loc['nombre_localidad']); ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
-            </div>   
+                </select>
+            </div> 
 
             <div>
                 <label>Programa</label>
