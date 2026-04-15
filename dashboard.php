@@ -57,7 +57,7 @@ session_start();
           </div>
 
           <div class="card">
-            <h3>Categoría Principal</h3>
+            <h3>->Categoría Principal</h3>
             <p id="registros">0</p>
           </div>
         </div>
@@ -71,7 +71,7 @@ session_start();
           </div>
 
           <div class="card">
-            <h3>Empleados con Mayor Gasto</h3>
+            <h3>->Empleados con Mayor Gasto</h3>
             <canvas id="barChart"></canvas>
           </div>
 
