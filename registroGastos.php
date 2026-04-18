@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 $grupos = $pdo->query("SELECT id_grupo, nombre_grupo FROM grupo WHERE activo = 1 ORDER BY nombre_grupo ASC")->fetchAll(PDO::FETCH_ASSOC);
 $programas = $pdo->query("SELECT id_programa, programa FROM programa ORDER BY programa ASC")->fetchAll(PDO::FETCH_ASSOC);
 $rubros = $pdo->query("SELECT id_rubro, nombre_rubro FROM rubro WHERE activo = 1 ORDER BY nombre_rubro ASC")->fetchAll(PDO::FETCH_ASSOC);
-
+$localidades = $pdo->query("SELECT id_localidad, nombre_localidad FROM localidad WHERE estado = 1 ORDER BY nombre_localidad ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 // ✅ Función helper para generar options
 function generarOptions($datos, $valueField, $textField, $selected = '') {
@@ -24,6 +24,75 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
     }
     return $options;
 }
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
+    
+    try {
+        // 1. Recibir y validar datos
+        $feini = $_POST['feini'] ?? '';
+        $fefin = $_POST['fefin'] ?? '';
+        $id_localidad = !empty($_POST['localidad']) ? intval($_POST['localidad']) : 0;
+
+        // 2. Validaciones
+        if (empty($feini)) {
+            throw new Exception('La fecha de inicio es obligatoria');
+        }
+        if (empty($fefin)) {
+            throw new Exception('La fecha de término es obligatoria');
+        }
+        if ($id_localidad <= 0) {
+            throw new Exception('La localidad es obligatoria');
+        }
+        if ($feini > $fefin) {
+            throw new Exception('La fecha de inicio no puede ser mayor a la fecha de término');
+        }
+
+        // 3. Insertar en base de datos
+        $pdo->beginTransaction();
+
+        $stmt = $pdo->prepare("
+            INSERT INTO periodo (fecha_inicio, fecha_fin, id_localidad, estado) 
+            VALUES (?, ?, ?, 'EN PROCESO')
+        ");
+
+        $stmt->execute([
+            $feini,
+            $fefin,
+            $id_localidad
+        ]);
+
+        // ✅ CORRECCIÓN: lastInsertId() (no lastIsertId)
+        $id_periodo = $pdo->lastInsertId();
+        
+        $pdo->commit();
+
+        // ✅ CORRECCIÓN: Variable correcta en mensaje
+        $_SESSION['mensaje'] = "✅ Periodo #{$id_periodo} registrado correctamente";
+        $_SESSION['tipo_mensaje'] = 'success';
+
+        // Redirect después de éxito
+        header("Location: registroGastos.php");
+        exit();
+
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        $_SESSION['mensaje'] = "❌ Error BD: " . ($e->errorInfo[2] ?? $e->getMessage());
+        $_SESSION['tipo_mensaje'] = 'error';
+        header("Location: registroGastos.php");
+        exit();
+        
+    } catch (Exception $e) {
+        $_SESSION['mensaje'] = "❌ Error: " . $e->getMessage();
+        $_SESSION['tipo_mensaje'] = 'error';
+        header("Location: registroGastos.php");
+        exit();
+    }
+}
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -72,7 +141,19 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
                 <label>Fecha de termino</label>
                 <input name="fefin" type="date">
             </div>
-            
+            <div>
+                <div class="form-group">
+                <label>localidad</label>
+                <select name="localidad" id="selectLocalidad" required >
+                     <option value="">Seleccione una Localidad</option>
+                    <?php foreach($localidades as $lo): ?>
+                            <option value="<?php echo $lo['id_localidad']; ?>">
+                                <?php echo htmlspecialchars($lo['nombre_localidad']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                </select>
+                </div>
+            </div> 
 
                 <button type="submit" name="btnperiodo" class="btn">+ Añadir Periodo</button>
         </div>
@@ -128,18 +209,6 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
 
         <div class="grid-2">
 
-            <div>
-                <label>localidad</label>
-                <select name="localidad" id="selectLocalidad" required>
-                    <option value="">Seleccione una localidad</option>
-                    <?php foreach($pdo->query("SELECT id_localidad, nombre_localidad FROM localidad WHERE estado=1") as $loc): ?>
-                        <option value="<?php echo $loc['id_localidad']; ?>">
-                            <?php echo htmlspecialchars($loc['nombre_localidad']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                </select>
-            </div> 
 
             <div>
                 <label>Programa</label>
@@ -161,7 +230,7 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
 
             <label>Rubro</label>
 
-                <select name="Programa" required>
+                <select name="Rubro" required>
                     <option value="">Seleccione un Rubro</option>
                     <?php foreach($rubros as $ru): ?>
                         <option value="<?php echo $ru['id_rubro']; ?>">
@@ -170,16 +239,6 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
                     <?php endforeach; ?>    
                 </select>
                 <input type="number" name="rubro"  placeholder="$0.00">
-
-        <!-- <div class="rubro"><span>Gasolina</span><input type="number" name="Gasolina"  placeholder="$0.00"></div>
-        <div class="rubro"><span>Hotel</span><input type="number"  name="Hotel"  placeholder="$0.00"></div>
-        <div class="rubro"><span>Casetas</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Materiales</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Impuesto de Acceso de Vía</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Viático mantenedor</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Viático técnico</span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Recargas </span><input type="number"   placeholder="$0.00"></div>
-        <div class="rubro"><span>Otros</span><input type="number"   placeholder="$0.00"></div> -->
 
         </div>
 
@@ -202,8 +261,7 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
         const selectCuadrillas = document.getElementById('selectCuadrillas');
         const selectMantenedor = document.getElementById('selectMantenedor');
         const selectTecnico = document.getElementById('selectTecnico');
-        const selectPrograma = document.getElementById('selectPrograma');
-        const selectRegion = document.getElementById('selectRegion');
+        const selectLocalidad = document.getElementById('selectLocalidad');
         const errorMsg = document.getElementById('errorMsg');
 
         // Función para mostrar errores
@@ -231,27 +289,6 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
             });
             selectElement.disabled = false;
         }
-
-          /*async function cargarCuadrillas(idGrupo) {
-            try {
-                selectCuadrillas.disabled = true;
-                selectCuadrillas.innerHTML = '<option value="">Cargando...</option>';
-                
-                const response = await fetch(`api/get_cuadrillas.php?id_grupo=${idGrupo}`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    llenarSelect(selectCuadrillas, result.data, 'id_tecnico', 'nombre', '-- Seleccione Cuadrilla --');
-                } else {
-                    showError(result.message);
-                    selectCuadrillas.innerHTML = '<option value="">Error al cargar</option>';
-                }
-            } catch (error) {
-                showError('Error de conexión: ' + error.message);
-                selectCuadrillas.innerHTML = '<option value="">Error</option>';
-            }
-        }*/
-
 
         // 🔗 Cargar Mantenedores según Empresa seleccionada
         async function cargarMantenedores(idCuadrilla) {
@@ -296,25 +333,7 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
         }
 
         // 🔗 Cargar Regiones según Programa seleccionado
-        async function cargarRegiones(idPrograma) {
-            try {
-                selectRegion.disabled = true;
-                selectRegion.innerHTML = '<option value="">Cargando...</option>';
-                
-                const response = await fetch(`api/get_localidades.php?id_programa=${idPrograma}`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    llenarSelect(selectRegion, result.data, 'id_localidad', 'nombre_localidad', '-- Seleccione Región --');
-                } else {
-                    showError(result.message);
-                    selectRegion.innerHTML = '<option value="">Error al cargar</option>';
-                }
-            } catch (error) {
-                showError('Error de conexión: ' + error.message);
-                selectRegion.innerHTML = '<option value="">Error</option>';
-            }
-        }
+    
 
         // 🎯 Event Listener: Cambio en Empresa
         selectEmpresa.addEventListener('change', function() {
@@ -326,27 +345,17 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
             selectTecnico.innerHTML = '<option value="">-- Primero seleccione Empresa --</option>';
             selectTecnico.disabled = true;
             
+          
             if (idGrupo) {
                 // Cargar ambos selects en paralelo
                 Promise.all([
                     cargarMantenedores(idGrupo),
-                    cargarTecnicos(idGrupo)
+                    cargarTecnicos(idGrupo),
+                 
                 ]);
             }
         });
 
-        // 🎯 Event Listener: Cambio en Programa
-        selectPrograma.addEventListener('change', function() {
-            const idPrograma = this.value;
-            
-            // Resetear región
-            selectRegion.innerHTML = '<option value="">-- Primero seleccione Programa --</option>';
-            selectRegion.disabled = true;
-            
-            if (idPrograma) {
-                cargarRegiones(idPrograma);
-            }
-        });
 
         // 🔍 Filtro de búsqueda en tiempo real
         document.getElementById('buscador').addEventListener('input', function() {
@@ -363,6 +372,9 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
                 const texto = option.textContent.toLowerCase();
                 option.style.display = texto.includes(filtro) ? '' : 'none';
             });
+
+
+            
         });
 
         // ✅ Validación antes de enviar
@@ -376,6 +388,7 @@ function generarOptions($datos, $valueField, $textField, $selected = '') {
                 e.preventDefault();
                 showError('Por favor seleccione al menos un empleado (Mantenedor o Técnico)');
             }
+            
         });
     </script>
 
