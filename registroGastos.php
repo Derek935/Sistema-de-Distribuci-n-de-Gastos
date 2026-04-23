@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 require 'conexion/conexion.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -12,7 +13,7 @@ $grupos = $pdo->query("SELECT id_grupo, nombre_grupo FROM grupo WHERE activo = 1
 $programas = $pdo->query("SELECT id_programa, programa FROM programa ORDER BY programa ASC")->fetchAll(PDO::FETCH_ASSOC);
 $rubros = $pdo->query("SELECT id_rubro, nombre_rubro FROM rubro WHERE activo = 1 ORDER BY nombre_rubro ASC")->fetchAll(PDO::FETCH_ASSOC);
 $localidades = $pdo->query("SELECT id_localidad, nombre_localidad FROM localidad WHERE estado = 1 ORDER BY nombre_localidad ASC")->fetchAll(PDO::FETCH_ASSOC);
-
+$periodo = $pdo->query("SELECT id_periodo, concat('Entre ',fecha_inicio,' y ',fecha_fin) periodo FROM periodo WHERE estado = 'EN PROCESO' ORDER BY periodo ASC")->fetchAll(PDO::FETCH_ASSOC);
 // ✅ Función helper para generar options
 function generarOptions($datos, $valueField, $textField, $selected = '') {
     $options = '<option value="">-- Seleccione --</option>';
@@ -61,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
             $id_localidad
         ]);
 
-        // ✅ CORRECCIÓN: lastInsertId() (no lastIsertId)
+        // ✅ CORRECCIÓN: lastInsertId()
         $id_periodo = $pdo->lastInsertId();
         
         $pdo->commit();
@@ -91,6 +92,87 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
     }
 }
 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
+    
+    try {
+        // ✅ 1. Recibir y sanitizar datos
+        $fecha_gasto = $_POST['fecha_gasto'] ?? date('Y-m-d');
+        $monto = floatval($_POST['monto_gasto'] ?? 0);
+        
+        // ❌ ELIMINAR: $id_grupo NO existe en la tabla gasto
+        // $id_grupo = !empty($_POST['Empresa']) ? intval($_POST['Empresa']) : null;
+        
+        $id_mantenedor = !empty($_POST['Mantenedor']) ? intval($_POST['Mantenedor']) : null;
+        $id_tecnico = !empty($_POST['Tecnico']) ? intval($_POST['Tecnico']) : null;
+        $id_periodo = !empty($_POST['Periodo']) ? intval($_POST['Periodo']) : null;
+        $id_programa = !empty($_POST['Programa']) ? intval($_POST['Programa']) : null;
+        $id_rubro = !empty($_POST['Rubro']) ? intval($_POST['Rubro']) : null;
+        $observaciones = trim($_POST['observaciones'] ?? '');
+
+        // ✅ 2. Validaciones (sin $id_grupo)
+        if (empty($fecha_gasto)) throw new Exception('La fecha del gasto es obligatoria');
+        if ($monto <= 0) throw new Exception('El monto debe ser mayor a 0');
+        // ❌ ELIMINAR validación de $id_grupo
+        if (!$id_rubro) throw new Exception('Debe seleccionar un rubro');
+        if (!$id_programa) throw new Exception('Debe seleccionar un programa');
+        if (!$id_periodo) throw new Exception('Debe seleccionar un periodo');
+        
+        if (!$id_mantenedor && !$id_tecnico) {
+            throw new Exception('Debe seleccionar al menos un empleado');
+        }
+
+        // ✅ 3. INSERT ajustado a la estructura REAL de la tabla
+        $pdo->beginTransaction();
+        
+        $stmt = $pdo->prepare("
+            INSERT INTO gasto (
+                fecha_gasto, 
+                monto, 
+                descripcion, 
+                id_mantenedor, 
+                id_tecnico, 
+                id_rubro, 
+                id_periodo, 
+                id_programa,
+                comprobante, 
+                fecha_registro, 
+                estado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, NOW(), 1)
+        ");
+        
+        // ✅ 8 valores que coinciden con 8 placeholders (?)
+        $stmt->execute([
+            $fecha_gasto,        // 1. fecha_gasto
+            $monto,              // 2. monto
+            $observaciones,      // 3. descripcion
+            $id_mantenedor,      // 4. id_mantenedor
+            $id_tecnico,         // 5. id_tecnico
+            $id_rubro,           // 6. id_rubro
+            $id_periodo,         // 7. id_periodo
+            $id_programa         // 8. id_programa
+            // 9. comprobante = NULL (literal en SQL)
+            // 10. fecha_registro = NOW() (literal en SQL)
+            // 11. estado = 1 (literal en SQL)
+        ]);
+        
+        $id_gasto = $pdo->lastInsertId();
+        $pdo->commit();
+        
+        $_SESSION['mensaje'] = "✅ Gasto #{$id_gasto} registrado correctamente";
+        $_SESSION['tipo_mensaje'] = 'success';
+        
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        error_log("Error PDO: " . $e->getMessage());
+        $_SESSION['mensaje'] = "❌ Error BD: " . ($e->errorInfo[2] ?? $e->getMessage());
+        $_SESSION['tipo_mensaje'] = 'error';
+    } catch (Exception $e) {
+        $_SESSION['mensaje'] = "❌ Error: " . $e->getMessage();
+        $_SESSION['tipo_mensaje'] = 'error';
+    }
+    header("Location: registroGastos.php");
+    exit();
+}
 
 
 ?>
@@ -158,98 +240,106 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
                 <button type="submit" name="btnperiodo" class="btn">+ Añadir Periodo</button>
         </div>
         </form>
-
+    
+<form method="POST" action="">
     <div class="contenedor">
         <img src="assets/add.png" class="icon" alt="">
-        <h3>Registrar Gasto por Empleado</h3>
+        <h3> Registrar Gasto por Empleado</h3>
 
+        <!-- Empresa -->
         <div class="form-group">
-        <label>Seleccionar Empresa</label>
-        <select name="Empresa"  id="selectEmpresa" required>
-            <option value="">Seleccione una Empresa</option>
-                        <?php foreach($grupos as $grupo): ?>
-                            <option value="<?php echo $grupo['id_grupo']; ?>">
-                                <?php echo htmlspecialchars($grupo['nombre_grupo']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                        </div>
-
-       
-
-        
-
-        <div>
-                <label>Fecha del gasto</label>
-                <input name="feini" type="date">
+            <label> Seleccionar Empresa</label>
+            <select name="Empresa" id="selectEmpresa" required>
+                <option value="">Seleccione una Empresa</option>
+                <?php foreach($grupos as $grupo): ?>
+                    <option value="<?php echo $grupo['id_grupo']; ?>">
+                        <?php echo htmlspecialchars($grupo['nombre_grupo']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
-         <!-- <div class="form-group">
-            <label>Seleccionar Cuadrilla</label>
-            <select name="Cuadrilla" id="selectCuadrillas" required disabled>
-                <option value="">-- Primero seleccione Cuadrilla --</option>
-            </select>
-        </div> -->
+        <!-- Fecha del gasto -->
+        <div>
+            <label> Fecha del gasto</label>
+            <!-- ✅ name único para evitar conflicto con formulario de periodo -->
+            <input name="fecha_gasto" type="date" value="<?php echo date('Y-m-d'); ?>" required>
+        </div>
 
-        <h3>Seleccionar Empleado</h3>
-
-       <div class="grid-2">
-                <div class="form-group">
-                    <label>Mantenedor</label>
-                    <select name="Mantenedor" id="selectMantenedor" required disabled>
-                        <option value="">-- Primero seleccione Empresa --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Técnico</label>
-                    <select name="Tecnico" id="selectTecnico" required disabled>
-                        <option value="">-- Primero seleccione Empresa --</option>
-                    </select>
-                </div>
-            </div>
-
+        <!-- Empleados -->
+        <h3>🔧 Seleccionar Empleado</h3>
         <div class="grid-2">
-
-
-            <div>
-                <label>Programa</label>
-                <select name="Programa" required>
-                    <option value="">Seleccione un Programa</option>
-                        <?php foreach($programas as $pro): ?>
-                            <option value="<?php echo $pro['id_programa']; ?>">
-                                <?php echo htmlspecialchars($pro['programa']); ?>
-                            </option>
-                        <?php endforeach; ?>
+            <div class="form-group">
+                <label>Mantenedor</label>
+                <select name="Mantenedor" id="selectMantenedor">
+                    <option value="">-- Seleccione Mantenedor --</option>
                 </select>
             </div>
-
+            <div class="form-group">
+                <label>Técnico</label>
+                <select name="Tecnico" id="selectTecnico">
+                    <option value="">-- Seleccione Técnico --</option>
+                </select>
+            </div>
         </div>
 
-        <h3>Categoría de Gasto</h3>
+        <!-- Periodo y Programa -->
+        <div class="grid-2">
+            <div>
+                <label> Periodo</label>
+                <select name="Periodo" required>
+                    <option value="">Seleccione un Periodo</option>
+                    <?php foreach($periodo as $peri): ?>
+                        <option value="<?php echo $peri['id_periodo']; ?>">
+                            <?php echo htmlspecialchars($peri['id_periodo']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label> Programa</label>
+                <select name="Programa" required>
+                    <option value="">Seleccione un Programa</option>
+                    <?php foreach($programas as $pro): ?>
+                        <option value="<?php echo $pro['id_programa']; ?>">
+                            <?php echo htmlspecialchars($pro['programa']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
 
+        <!-- Rubro y Monto -->
+        <h3> Categoría de Gasto</h3>
         <div class="grid-3">
-
-            <label>Rubro</label>
-
+            <div class="form-group">
+                <label>Rubro</label>
                 <select name="Rubro" required>
                     <option value="">Seleccione un Rubro</option>
                     <?php foreach($rubros as $ru): ?>
                         <option value="<?php echo $ru['id_rubro']; ?>">
-                           <?php echo htmlspecialchars($ru['nombre_rubro']); ?>
+                            <?php echo htmlspecialchars($ru['nombre_rubro']); ?>
                         </option>
                     <?php endforeach; ?>    
                 </select>
-                <input type="number" name="rubro"  placeholder="$0.00">
-
+            </div>
+            <!-- ✅ CORRECCIÓN: name="monto_gasto" en vez de name="rubro" -->
+            <div class="form-group">
+                <label>Monto</label>
+                <input type="number" name="monto_gasto" step="0.01" min="0.01" placeholder="$0.00" required>
+            </div>
         </div>
 
-        
+        <!-- ✅ CORRECCIÓN: Agregar name="observaciones" al textarea -->
+        <div class="form-group">
+            <label> Observaciones</label>
+            <textarea name="observaciones" rows="3" placeholder="Detalles adicionales..."></textarea>
+        </div>
 
-        <label>Observaciones</label>
-        <textarea placeholder="Detalles adicionales..."></textarea>
-
-        <button class="btn">+ Añadir Gasto</button>
-
+        <!-- Botón con name="btngasto" -->
+        <button type="submit" name="btngasto" class="btn">+ Añadir Gasto</button>
     </div>
+</form>
 
 <!-- FOOTER -->
 <footer class="footer">
