@@ -357,3 +357,37 @@ input, select, textarea {
 }  
   
 }
+
+.header {
+    position: fixed;  /* Fijo en la parte superior */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;  /* Por encima de todo */
+}
+
+body {
+    padding-top: 80px;  /* Espacio para que el contenido no quede tapado */
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* 2 columnas iguales */
+    gap: 20px;  /* Espacio entre gráficas */
+}
+
+@media (max-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 1fr;  /* 1 columna en tablets */
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 120px;  /* Más espacio en móviles */
+    }
+    
+    .header-content {
+        flex-direction: column;  /* Header vertical en móviles */
+    }
+}

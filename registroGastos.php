@@ -34,6 +34,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
         $fefin = $_POST['fefin'] ?? '';
         $id_localidad = !empty($_POST['localidad']) ? intval($_POST['localidad']) : 0;
 
+         // 🔢 Obtener MAX(id_periodo)
+        $stmtMax = $pdo->query("SELECT MAX(id_periodo+1) as max_id FROM periodo");
+        $resultado = $stmtMax->fetch(PDO::FETCH_ASSOC);
+        $id_periodo = $resultado['max_id'];
+        
+  
         // 2. Validaciones
         if (empty($feini)) {
             throw new Exception('La fecha de inicio es obligatoria');
@@ -47,28 +53,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
         if ($feini > $fefin) {
             throw new Exception('La fecha de inicio no puede ser mayor a la fecha de término');
         }
-
+         if (empty($id_periodo)) {
+            throw new Exception('No se pudo obtener el ID del período');
+        }
         // 3. Insertar en base de datos
         $pdo->beginTransaction();
-
+        
         $stmt = $pdo->prepare("
-            INSERT INTO periodo (fecha_inicio, fecha_fin, id_localidad, estado) 
-            VALUES (?, ?, ?, 'EN PROCESO')
+            INSERT INTO periodo (id_periodo,fecha_inicio, fecha_fin, id_localidad, estado) 
+            VALUES (?,?, ?, ?, 'EN PROCESO')
         ");
 
         $stmt->execute([
+           $id_periodo,
             $feini,
             $fefin,
             $id_localidad
         ]);
 
-        // ✅ CORRECCIÓN: lastInsertId()
-        $id_periodo = $pdo->lastInsertId();
+       
+       
         
         $pdo->commit();
+         
 
-        // ✅ CORRECCIÓN: Variable correcta en mensaje
-        $_SESSION['mensaje'] = "✅ Periodo #{$id_periodo} registrado correctamente";
+        // ✅ CORRECCIÓN: Variable correcta en mensaje 
+        $_SESSION['mensaje'] = "✅ Periodo registrado correctamente";
         $_SESSION['tipo_mensaje'] = 'success';
 
         // Redirect después de éxito
