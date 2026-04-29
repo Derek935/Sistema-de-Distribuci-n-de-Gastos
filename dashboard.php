@@ -139,7 +139,7 @@ $data_localidad = array_column($gastos_por_localidad, 'total');
         body {
             font-family: 'Outfit', sans-serif;
             background: #f8f9fa;
-            padding-top: 80px; /* Espacio para el header fijo */
+            padding-top: 80px;
         }
         
         /* ===== HEADER FIJO ===== */
@@ -251,7 +251,7 @@ $data_localidad = array_column($gastos_por_localidad, 'total');
         /* ===== GRID DE GRÁFICAS (MOSAICO) ===== */
         .charts-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -335,16 +335,152 @@ $data_localidad = array_column($gastos_por_localidad, 'total');
             color: #388e3c; 
         }
         
+        /* ===== BOTONES DE EXPORTACIÓN ===== */
+        .export-buttons {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-export {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        /* ===== MODALES ===== */
+        .modal {
+            display: none; /* ✅ OCULTO POR DEFECTO */
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+            position: relative;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .btn-block {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .charts-grid {
-                grid-template-columns: 1fr; /* 1 columna en tablets */
+                grid-template-columns: 1fr;
             }
         }
         
         @media (max-width: 768px) {
             body {
-                padding-top: 120px; /* Más espacio en móviles */
+                padding-top: 120px;
             }
             
             .header-content {
@@ -358,11 +494,24 @@ $data_localidad = array_column($gastos_por_localidad, 'total');
             }
             
             .stats-grid {
-                grid-template-columns: 1fr; /* 1 columna en móviles */
+                grid-template-columns: 1fr;
             }
             
             .chart-container {
                 height: 300px;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-export {
+                width: 100%;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
             }
         }
     </style>
@@ -517,6 +666,64 @@ $data_localidad = array_column($gastos_por_localidad, 'total');
             </table>
         </div>
 
+        <!-- Botones de Exportación -->
+        <div class="export-buttons">
+            <button onclick="openModal('modalPeriodos')" class="btn-export btn-primary">
+                📅 Exportar por Período
+            </button>
+            <button onclick="openModal('modalFechas')" class="btn-export btn-success">
+                📆 Exportar por Fecha de Ingreso
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Modal: Exportar por Períodos -->
+    <div id="modalPeriodos" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modalPeriodos')">&times;</span>
+            <h2>📅 Exportar Gastos por Período</h2>
+            <form action="exportar_periodos.php" method="POST">
+                <div class="form-group">
+                    <label>Seleccionar Período:</label>
+                    <select name="id_periodo" class="form-control">
+                        <option value="">-- Todos los períodos --</option>
+                        <?php 
+                        $stmt = $pdo->query("SELECT id_periodo, CONCAT('Entre ', DATE_FORMAT(fecha_inicio, '%d/%m/%Y'), ' y ', DATE_FORMAT(fecha_fin, '%d/%m/%Y')) as periodo FROM periodo ORDER BY fecha_inicio DESC");
+                        while($p = $stmt->fetch(PDO::FETCH_ASSOC)): 
+                        ?>
+                            <option value="<?php echo $p['id_periodo']; ?>">
+                                <?php echo htmlspecialchars($p['periodo']); ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                <button type="submit" name="exportar" class="btn btn-primary btn-block">
+                    📥 Descargar Excel (.xlsx)
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Exportar por Fecha -->
+    <div id="modalFechas" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modalFechas')">&times;</span>
+            <h2>📆 Exportar Gastos por Fecha de Ingreso</h2>
+            <form action="exportar_por_fecha.php" method="POST">
+                <div class="form-group">
+                    <label>Fecha de Inicio:</label>
+                    <input type="date" name="fecha_inicio" required class="form-control" value="<?php echo date('Y-m-01'); ?>">
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Fin:</label>
+                    <input type="date" name="fecha_fin" required class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+                <button type="submit" name="exportar" class="btn btn-success btn-block">
+                    📥 Descargar Excel (.xlsx)
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Scripts de ApexCharts -->
@@ -667,6 +874,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     console.log('✅ ApexCharts inicializado');
+});
+
+// ===== FUNCIONES DE MODALES =====
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevenir scroll
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    document.body.style.overflow = 'auto'; // Restaurar scroll
+}
+
+// Cerrar modal al hacer clic fuera
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Cerrar modal con tecla ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
 });
 </script>
 
