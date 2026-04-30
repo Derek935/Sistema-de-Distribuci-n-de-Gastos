@@ -20,13 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($usuario) && !empty($palabra)) {
         
             // Buscar usuario por nombre o email
-            $stmt = $pdo->prepare("SELECT id_encargado, nombres, contraseña, clave_recu FROM nom_encargados WHERE nombres = ? ");
+            $stmt = $pdo->prepare("SELECT id_usuario, nombre, password_hash, correo FROM usuario WHERE nombre = ? ");
             $stmt->execute([$usuario]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($user) {
                 // Verificar palabra de recuperación
-                if ($palabra === $user['clave_recu']) {
+                if ($palabra === $user['correo']) {
                     
                     if ($accion === 'recuperar') {
                         // ⚠️ OPCION INSEGURA: Mostrar contraseña
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         
                         // Para fines educativos, si quieres mostrar la contraseña real:
                         // Debes guardarla en texto plano en la BD (MUY INSEGURO)
-                         $password_recuperada = $user['contraseña'];
+                         $password_recuperada = $user['password_hash'];
                     }else {
                     $error = "❌ Palabra de recuperación incorrecta.";
                 }
@@ -81,8 +81,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label>Usuario</label>
         <input name="usuario" placeholder="Número de empleado / Boleta" />
 
-        <label>Palabra de recuperacion</label>
-        <input name="palabra" placeholder="Ingresa tu contraseña"/>
+        <label>Correo</label>
+        <input name="palabra" placeholder="Ingresa tu correo"/>
         <input name="btnlogin" class="btn" type="submit" value ="Recuperar">
         <?php if($mostrar_password): ?>
                 <div class="warning">

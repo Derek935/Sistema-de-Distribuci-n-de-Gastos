@@ -366,9 +366,7 @@ input, select, textarea {
     z-index: 1000;  /* Por encima de todo */
 }
 
-body {
-    padding-top: 80px;  /* Espacio para que el contenido no quede tapado */
-}
+
 
 .charts-grid {
     display: grid;
