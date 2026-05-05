@@ -1,6 +1,16 @@
 <?php
-session_start();
+// registroGastos.php
+require_once 'config/auth.php';
+
+// ✅ Verificar que esté logueado (cualquier rol puede acceder)
+if (!isLoggedIn()) {
+    header("Location: /index.php");
+    exit();
+}
+
 require 'conexion/conexion.php';
+// Incluir header
+require_once 'includes/header.php';
 
 // Configuración de upload
 $uploadDir = 'uploads/comprobantes/';
@@ -647,6 +657,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
             }
         });
     </script>
-
-</body>
-</html>
+<?php require_once 'includes/footer.php'; ?>

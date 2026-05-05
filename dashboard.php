@@ -1,11 +1,13 @@
 <?php
-session_start();
-require 'conexion/conexion.php';
+// dashboard.php
+require 'config/auth.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit();
-}
+// ✅ Proteger vista - Solo admin
+requireAdmin();
+
+require 'conexion/conexion.php';
+// Si llega aquí, es admin
+require 'includes/header.php';
 
 // ============================================
 // 📊 CONSULTAS PARA EL DASHBOARD
@@ -908,6 +910,4 @@ document.addEventListener('keydown', function(event) {
     }
 });
 </script>
-
-</body>
-</html>
+<?php require_once 'includes/footer.php'; ?>

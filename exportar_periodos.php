@@ -2,7 +2,13 @@
 session_start();
 require 'conexion/conexion.php';
 require 'vendor/autoload.php';
+// exportar_periodos.php
+require_once 'config/auth.php';
 
+// ✅ PROTEGER: Solo admin
+requireAdmin();
+
+// Tu código existente de exportación...
 use Shuchkin\SimpleXLSXGen;
 
 if (!isset($_SESSION['user_id']) || !isset($_POST['exportar'])) {
