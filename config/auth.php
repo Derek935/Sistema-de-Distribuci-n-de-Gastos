@@ -96,19 +96,6 @@ function getMenuItems() {
             'class' => 'admin-only'
         ];
         
-        $menu[] = [
-            'label' => '📅 Exportar Periodos',
-            'url' => 'exportar_periodos.php',
-            'roles' => [1],
-            'class' => 'admin-only'
-        ];
-        
-        $menu[] = [
-            'label' => '📆 Exportar por Fecha',
-            'url' => 'exportar_por_fecha.php',
-            'roles' => [1],
-            'class' => 'admin-only'
-        ];
     }
     
     return $menu;
