@@ -113,6 +113,71 @@ $data_mes = array_column($gastos_por_mes, 'total');
 
 $labels_localidad = array_column($gastos_por_localidad, 'nombre_localidad');
 $data_localidad = array_column($gastos_por_localidad, 'total');
+
+// 🔍 Cargar todos los trabajadores (mantenedores y técnicos)
+$trabajadores = $pdo->query("
+    SELECT id_mantenedor as id, nombre, 'Mantenedor' as tipo FROM mantenedor WHERE estado = 1
+    UNION ALL
+    SELECT id_tecnico as id, nombre, 'Técnico' as tipo FROM tecnico WHERE activo = 1
+    ORDER BY tipo, nombre
+")->fetchAll(PDO::FETCH_ASSOC);
+
+// 🔍 BUSCAR GASTOS POR TRABAJADOR
+$gastos_trabajador = [];
+$trabajador_seleccionado = null;
+$total_gastos = 0;
+
+if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
+    $trabajador_id = intval($_GET['trabajador_id']);
+    $tipo_trabajador = $_GET['tipo_trabajador'] ?? 'mantenedor';
+    
+    // Obtener información del trabajador
+    if ($tipo_trabajador === 'tecnico') {
+        $stmt = $pdo->prepare("SELECT nombre FROM tecnico WHERE id_tecnico = ?");
+        $stmt->execute([$trabajador_id]);
+        $trabajador_seleccionado = $stmt->fetch(PDO::FETCH_ASSOC);
+        $tipo = 'Técnico';
+    } else {
+        $stmt = $pdo->prepare("SELECT nombre FROM mantenedor WHERE id_mantenedor = ?");
+        $stmt->execute([$trabajador_id]);
+        $trabajador_seleccionado = $stmt->fetch(PDO::FETCH_ASSOC);
+        $tipo = 'Mantenedor';
+    }
+    
+    if ($trabajador_seleccionado) {
+        // Obtener gastos del trabajador con sus comprobantes
+        $sql = "
+            SELECT 
+                g.id_gasto,
+                g.fecha_gasto,
+                g.monto,
+                g.descripcion,
+                g.comprobante,
+                g.fecha_registro,
+                r.nombre_rubro,
+                p.programa
+            FROM gasto g
+            LEFT JOIN rubro r ON g.id_rubro = r.id_rubro
+            LEFT JOIN programa p ON g.id_programa = p.id_programa
+            LEFT JOIN periodo per ON g.id_periodo = per.id_periodo
+            WHERE g.estado = 1 AND ";
+        
+        if ($tipo_trabajador === 'tecnico') {
+            $sql .= "g.id_tecnico = ?";
+        } else {
+            $sql .= "g.id_mantenedor = ?";
+        }
+        
+        $sql .= " ORDER BY g.fecha_gasto DESC";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$trabajador_id]);
+        $gastos_trabajador = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Calcular total
+        $total_gastos = array_sum(array_column($gastos_trabajador, 'monto'));
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -270,7 +335,141 @@ $data_localidad = array_column($gastos_por_localidad, 'total');
                 </tbody>
             </table>
         </div>
+         <!-- 🔍 SECCIÓN DE BÚSQUEDA POR TRABAJADOR -->
+<div class="search-section" style="margin: 30px 0;">
+    <h3>
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        Buscar Gastos por Trabajador
+    </h3>
+    
+    <form method="GET" class="search-form">
+        <div class="form-group">
+            <label>Tipo de Trabajador</label>
+            <select name="tipo_trabajador" id="tipo_trabajador" required>
+                <option value="mantenedor">Mantenedor</option>
+                <option value="tecnico">Técnico</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Seleccionar Trabajador</label>
+            <select name="trabajador_id" id="trabajador_id" required>
+                <option value="">-- Seleccione --</option>
+                <?php foreach($trabajadores as $trab): ?>
+                    <option value="<?php echo $trab['id']; ?>" 
+                            data-tipo="<?php echo strtolower($trab['tipo']); ?>">
+                        <?php echo htmlspecialchars($trab['nombre']); ?> (<?php echo $trab['tipo']; ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>&nbsp;</label>
+            <button type="submit" name="buscar_trabajador" class="btn-search">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                Buscar
+            </button>
+        </div>
+    </form>
+</div>
 
+<!-- RESULTADOS DE BÚSQUEDA -->
+<?php if ($trabajador_seleccionado): ?>
+    <div class="results-container" style="margin-bottom: 30px;">
+        <div class="results-header">
+            <h3 class="results-title">
+                📋 Gastos de <?php echo htmlspecialchars($trabajador_seleccionado['nombre']); ?>
+            </h3>
+            <div class="results-total">
+                Total: $<?php echo number_format($total_gastos, 2); ?> 
+                (<?php echo count($gastos_trabajador); ?> gastos)
+            </div>
+        </div>
+        
+        <?php if (empty($gastos_trabajador)): ?>
+            <div class="sin-resultados">
+                <div class="sin-resultados-icon">📭</div>
+                <h3>No se encontraron gastos</h3>
+                <p>Este trabajador no tiene gastos registrados en el sistema.</p>
+            </div>
+        <?php else: ?>
+            <div class="gastos-grid">
+                <?php foreach($gastos_trabajador as $gasto): ?>
+                    <div class="gasto-card">
+                        <div class="gasto-header">
+                            <div>
+                                <div class="gasto-fecha">
+                                    📅 <?php echo date('d/m/Y', strtotime($gasto['fecha_gasto'])); ?>
+                                </div>
+                                <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">
+                                    Registrado: <?php echo date('d/m/Y H:i', strtotime($gasto['fecha_registro'])); ?>
+                                </div>
+                            </div>
+                            <div class="gasto-monto">
+                                $<?php echo number_format($gasto['monto'], 2); ?>
+                            </div>
+                        </div>
+                        
+                        <div class="gasto-info">
+                            <div class="gasto-label">Rubro</div>
+                            <div class="gasto-value">💼 <?php echo htmlspecialchars($gasto['nombre_rubro'] ?? 'N/A'); ?></div>
+                        </div>
+                        
+                        <div class="gasto-info">
+                            <div class="gasto-label">Programa</div>
+                            <div class="gasto-value">📋 <?php echo htmlspecialchars($gasto['programa'] ?? 'N/A'); ?></div>
+                        </div>
+                        
+                        <div class="gasto-info">
+                            <div class="gasto-label">Período</div>
+                            <div class="gasto-value">📅 <?php echo htmlspecialchars($gasto['periodo'] ?? 'N/A'); ?></div>
+                        </div>
+                        
+                        <?php if ($gasto['descripcion']): ?>
+                            <div class="gasto-info">
+                                <div class="gasto-label">Descripción</div>
+                                <div class="gasto-value"><?php echo htmlspecialchars($gasto['descripcion']); ?></div>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($gasto['comprobante']): ?>
+                            <div class="gasto-comprobante">
+                                <div class="gasto-label">📎 Comprobante</div>
+                                <?php 
+                                $ext = strtolower(pathinfo($gasto['comprobante'], PATHINFO_EXTENSION));
+                                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): 
+                                ?>
+                                    <img src="<?php echo htmlspecialchars($gasto['comprobante']); ?>" 
+                                         alt="Comprobante" 
+                                         class="comprobante-img"
+                                         onclick="window.open(this.src, '_blank')">
+                                <?php elseif ($ext === 'pdf'): ?>
+                                    <a href="<?php echo htmlspecialchars($gasto['comprobante']); ?>" 
+                                       target="_blank" 
+                                       class="comprobante-pdf">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Ver PDF
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="gasto-comprobante">
+                                <div class="sin-comprobante">Sin comprobante</div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
         <!-- Botones de Exportación -->
         <div class="export-buttons">
             <button onclick="openModal('modalPeriodos')" class="btn-export btn-primary">

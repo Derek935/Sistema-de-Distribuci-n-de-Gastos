@@ -173,62 +173,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
     }
 }
 
-// 🔍 BUSCAR GASTOS POR TRABAJADOR
-$gastos_trabajador = [];
-$trabajador_seleccionado = null;
-$total_gastos = 0;
 
-if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
-    $trabajador_id = intval($_GET['trabajador_id']);
-    $tipo_trabajador = $_GET['tipo_trabajador'] ?? 'mantenedor';
-    
-    // Obtener información del trabajador
-    if ($tipo_trabajador === 'tecnico') {
-        $stmt = $pdo->prepare("SELECT nombre FROM tecnico WHERE id_tecnico = ?");
-        $stmt->execute([$trabajador_id]);
-        $trabajador_seleccionado = $stmt->fetch(PDO::FETCH_ASSOC);
-        $tipo = 'Técnico';
-    } else {
-        $stmt = $pdo->prepare("SELECT nombre FROM mantenedor WHERE id_mantenedor = ?");
-        $stmt->execute([$trabajador_id]);
-        $trabajador_seleccionado = $stmt->fetch(PDO::FETCH_ASSOC);
-        $tipo = 'Mantenedor';
-    }
-    
-    if ($trabajador_seleccionado) {
-        // Obtener gastos del trabajador con sus comprobantes
-        $sql = "
-            SELECT 
-                g.id_gasto,
-                g.fecha_gasto,
-                g.monto,
-                g.descripcion,
-                g.comprobante,
-                g.fecha_registro,
-                r.nombre_rubro,
-                p.programa
-            FROM gasto g
-            LEFT JOIN rubro r ON g.id_rubro = r.id_rubro
-            LEFT JOIN programa p ON g.id_programa = p.id_programa
-            LEFT JOIN periodo per ON g.id_periodo = per.id_periodo
-            WHERE g.estado = 1 AND ";
-        
-        if ($tipo_trabajador === 'tecnico') {
-            $sql .= "g.id_tecnico = ?";
-        } else {
-            $sql .= "g.id_mantenedor = ?";
-        }
-        
-        $sql .= " ORDER BY g.fecha_gasto DESC";
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$trabajador_id]);
-        $gastos_trabajador = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Calcular total
-        $total_gastos = array_sum(array_column($gastos_trabajador, 'monto'));
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -246,48 +191,7 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
 </head>
 <body>
 
-    <!-- 🔍 SECCIÓN DE BÚSQUEDA POR TRABAJADOR -->
-    <div class="search-section">
-        <h3>
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            Buscar Gastos por Trabajador
-        </h3>
-        
-        <form method="GET" class="search-form">
-            <div class="form-group">
-                <label>Tipo de Trabajador</label>
-                <select name="tipo_trabajador" id="tipo_trabajador" required>
-                    <option value="mantenedor">Mantenedor</option>
-                    <option value="tecnico">Técnico</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Seleccionar Trabajador</label>
-                <select name="trabajador_id" id="trabajador_id" required>
-                    <option value="">-- Seleccione --</option>
-                    <?php foreach($trabajadores as $trab): ?>
-                        <option value="<?php echo $trab['id']; ?>" 
-                                data-tipo="<?php echo strtolower($trab['tipo']); ?>">
-                            <?php echo htmlspecialchars($trab['nombre']); ?> (<?php echo $trab['tipo']; ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>&nbsp;</label>
-                <button type="submit" name="buscar_trabajador" class="btn-search">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    Buscar
-                </button>
-            </div>
-        </form>
-    </div>
+  
 
     <!-- RESULTADOS DE BÚSQUEDA -->
     <?php if ($trabajador_seleccionado): ?>
