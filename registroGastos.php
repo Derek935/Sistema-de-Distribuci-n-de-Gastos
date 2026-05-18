@@ -335,7 +335,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
                 <div class="registro-upload-rules">
                     <strong> Requisitos:</strong>
                     <ul>
-                        <li>Formatos: JPG, PNG, GIF o PDF</li>
+                        <li>Formatos: JPG o PNG</li>
                         <li>Tamaño máximo: 5MB</li>
                         <li>El archivo debe ser legible</li>
                     </ul>

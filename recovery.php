@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="recovery-container">
       <div class="recovery-login-box">
         <form method="post" action="">
-          <h2>🔐 Recuperar Contraseña</h2>
+          <h2> Recuperar Contraseña</h2>
           <p class="recovery-subtitle">Ingresa tu usuario y correo para recuperar el acceso</p>
 
           <?php if($error): ?>
@@ -101,11 +101,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           </div>
           
           <input name="accion" type="hidden" value="recuperar">
-          <button type="submit" name="btnlogin" class="btn">🔑 Recuperar Contraseña</button>
+          <button type="submit" name="btnlogin" class="btn"> Recuperar Contraseña</button>
           
           <?php if($mostrar_password): ?>
             <div class="alert alert-warning">
-              ⚠️ <strong>Importante:</strong> Por seguridad, las contraseñas están encriptadas. 
+               <strong>Importante:</strong> Por seguridad, las contraseñas están encriptadas. 
               La opción recomendada es restablecer la contraseña.
             </div>
           <?php endif; ?>
@@ -114,12 +114,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="recovery-password-display">
               <strong>Tu Contraseña:</strong>
               <div class="recovery-password"><?php echo htmlspecialchars($password_recuperada); ?></div>
-              <small>⚠️ No compartas esta contraseña con nadie</small>
+              <small> No compartas esta contraseña con nadie</small>
             </div>
           <?php endif; ?>  
           
           <div class="text-center mt-20">
-            <a href="index.php" class="btn btn-secondary">🔐 Ir al Login</a>
+            <a href="index.php" class="btn btn-secondary"> Ir al Login</a>
           </div>
         </form>
       </div>

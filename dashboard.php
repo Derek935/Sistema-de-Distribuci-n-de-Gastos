@@ -403,7 +403,7 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
                                 <div class="dashboard-gasto-header">
                                     <div>
                                         <div class="dashboard-gasto-fecha">
-                                            📅 <?php echo date('d/m/Y', strtotime($gasto['fecha_gasto'])); ?>
+                                             <?php echo date('d/m/Y', strtotime($gasto['fecha_gasto'])); ?>
                                         </div>
                                         <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">
                                             Registrado: <?php echo date('d/m/Y H:i', strtotime($gasto['fecha_registro'])); ?>
@@ -416,17 +416,17 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
                                 
                                 <div class="dashboard-gasto-info">
                                     <div class="dashboard-gasto-label">Rubro</div>
-                                    <div class="dashboard-gasto-value">💼 <?php echo htmlspecialchars($gasto['nombre_rubro'] ?? 'N/A'); ?></div>
+                                    <div class="dashboard-gasto-value"> <?php echo htmlspecialchars($gasto['nombre_rubro'] ?? 'N/A'); ?></div>
                                 </div>
                                 
                                 <div class="dashboard-gasto-info">
                                     <div class="dashboard-gasto-label">Programa</div>
-                                    <div class="dashboard-gasto-value">📋 <?php echo htmlspecialchars($gasto['programa'] ?? 'N/A'); ?></div>
+                                    <div class="dashboard-gasto-value"> <?php echo htmlspecialchars($gasto['programa'] ?? 'N/A'); ?></div>
                                 </div>
                                 
                                 <div class="dashboard-gasto-info">
                                     <div class="dashboard-gasto-label">Período</div>
-                                    <div class="dashboard-gasto-value">📅 <?php echo htmlspecialchars($gasto['periodo'] ?? 'N/A'); ?></div>
+                                    <div class="dashboard-gasto-value"> <?php echo htmlspecialchars($gasto['periodo'] ?? 'N/A'); ?></div>
                                 </div>
                                 
                                 <?php if ($gasto['descripcion']): ?>

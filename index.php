@@ -166,7 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
     <div class="login-box">
-        <h2>🔐 Iniciar Sesión</h2>
+        <h2>Iniciar Sesión</h2>
         <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
         
         <?php if($error): ?>
@@ -189,11 +189,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
              <a href="recovery.php">Recuperar Contraseña</a>
         </form>
         
-        <div class="role-info">
-            <strong>📋 Roles disponibles:</strong><br>
-            • <strong>Admin (id_rol = 1)</strong>: Acceso completo al sistema<br>
-            • <strong>Usuario (id_rol = 2)</strong>: Solo acceso a Registro de Gastos
-        </div>
+        
     </div>
 
 </body>
