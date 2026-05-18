@@ -172,8 +172,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
         exit();
     }
 }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -186,32 +184,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/styles.css" />
-    
-
 </head>
 <body>
 
-  
-
-
-
     <!-- FORMULARIO DE PERIODO -->
     <form method="POST">          
-        <div class="contenedor">
-            <img src="assets/add.png" class="icon" alt="">
+        <div class="registro-contenedor">
+            <img src="assets/add.png" class="registro-icon" alt="">
             <h3>Registrar un periodo de Gasto</h3>
             <div>
                 <label>Fecha de salida</label>
-                <input name="feini" type="date">
+                <input name="feini" type="date" class="registro-input-date">
             </div>
             <div>
                 <label>Fecha de termino</label>
-                <input name="fefin" type="date">
+                <input name="fefin" type="date" class="registro-input-date">
             </div>
             <div>
                 <div class="form-group">
                     <label>Localidad</label>
-                    <select name="localidad" id="selectLocalidad" required>
+                    <select name="localidad" id="selectLocalidad" class="registro-select" required>
                         <option value="">Seleccione una Localidad</option>
                         <?php foreach($localidades as $lo): ?>
                             <option value="<?php echo $lo['id_localidad']; ?>">
@@ -227,13 +219,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
     
     <!-- FORMULARIO DE GASTO -->
     <form method="POST" action="" enctype="multipart/form-data">
-        <div class="contenedor">
-            <img src="assets/add.png" class="icon" alt="">
+        <div class="registro-contenedor">
+            <img src="assets/add.png" class="registro-icon" alt="">
             <h3>Registrar Gasto por Empleado</h3>
 
             <div class="form-group">
                 <label>Seleccionar Empresa</label>
-                <select name="Empresa" id="selectEmpresa" required>
+                <select name="Empresa" id="selectEmpresa" class="registro-select" required>
                     <option value="">Seleccione una Empresa</option>
                     <?php foreach($grupos as $grupo): ?>
                         <option value="<?php echo $grupo['id_grupo']; ?>">
@@ -245,29 +237,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
 
             <div class="form-group">
                 <label>Fecha del gasto</label>
-                <input name="fecha_gasto" type="date" value="<?php echo date('Y-m-d'); ?>" required>
+                <input name="fecha_gasto" type="date" class="registro-input-date" value="<?php echo date('Y-m-d'); ?>" required>
             </div>
 
-            <h3>🔧 Seleccionar Empleado</h3>
-            <div class="grid-2">
+            <h3> Seleccionar Empleado</h3>
+            <div class="registro-grid-2">
                 <div class="form-group">
                     <label>Mantenedor</label>
-                    <select name="Mantenedor" id="selectMantenedor">
+                    <select name="Mantenedor" id="selectMantenedor" class="registro-select">
                         <option value="">-- Seleccione Mantenedor --</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Técnico</label>
-                    <select name="Tecnico" id="selectTecnico">
+                    <select name="Tecnico" id="selectTecnico" class="registro-select">
                         <option value="">-- Seleccione Técnico --</option>
                     </select>
                 </div>
             </div>
 
-            <div class="grid-2">
+            <div class="registro-grid-2">
                 <div class="form-group">
                     <label>Periodo</label>
-                    <select name="Periodo" required>
+                    <select name="Periodo" class="registro-select" required>
                         <option value="">Seleccione un Periodo</option>
                         <?php foreach($periodo as $peri): ?>
                             <option value="<?php echo $peri['id_periodo']; ?>">
@@ -278,7 +270,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
                 </div>
                 <div class="form-group">
                     <label>Programa</label>
-                    <select name="Programa" required>
+                    <select name="Programa" class="registro-select" required>
                         <option value="">Seleccione un Programa</option>
                         <?php foreach($programas as $pro): ?>
                             <option value="<?php echo $pro['id_programa']; ?>">
@@ -289,11 +281,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
                 </div>
             </div>
 
-            <h3>💰 Categoría de Gasto</h3>
-            <div class="grid-3">
+            <h3> Categoría de Gasto</h3>
+            <div class="registro-grid-3">
                 <div class="form-group">
                     <label>Rubro</label>
-                    <select name="Rubro" required>
+                    <select name="Rubro" class="registro-select" required>
                         <option value="">Seleccione un Rubro</option>
                         <?php foreach($rubros as $ru): ?>
                             <option value="<?php echo $ru['id_rubro']; ?>">
@@ -304,44 +296,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
                 </div>
                 <div class="form-group">
                     <label>Monto</label>
-                    <input type="number" name="monto_gasto" step="0.01" min="0.01" placeholder="$0.00" required>
+                    <input type="number" name="monto_gasto" step="0.01" min="0.01" placeholder="$0.00" class="registro-input" required>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Observaciones</label>
-                <textarea name="observaciones" rows="3" placeholder="Detalles adicionales..."></textarea>
+                <textarea name="observaciones" rows="3" placeholder="Detalles adicionales..." class="registro-textarea"></textarea>
             </div>
 
             <div class="form-group">
-                <label>📎 Comprobante (Opcional)</label>
+                <label> Comprobante (Opcional)</label>
                 
-                <div class="upload-container" id="dropZone">
-                    <div class="upload-icon">📁</div>
+                <div class="registro-upload-container" id="dropZone">
+                   
                     <p>Arrastra tu archivo aquí o</p>
                     
-                    <div class="file-input-wrapper">
+                    <div class="registro-file-input-wrapper">
                         <input type="file" 
                                name="comprobante" 
                                id="comprobante" 
                                accept="image/*,application/pdf"
                                onchange="previewFile(this)">
-                        <label for="comprobante" class="file-input-label">
-                            📷 Seleccionar Archivo
+                        <label for="comprobante" class="registro-file-input-label">
+                            Seleccionar Archivo
                         </label>
                     </div>
                     
-                    <div class="file-info" id="fileInfo">
+                    <div class="registro-file-info" id="fileInfo">
                         <strong>Archivo seleccionado:</strong><br>
                         <span id="fileName"></span><br>
                         <small id="fileSize"></small>
                         <div id="imagePreview"></div>
-                        <button type="button" class="btn-remove" onclick="removeFile()">🗑️ Eliminar</button>
+                       
                     </div>
                 </div>
                 
-                <div class="upload-rules">
-                    <strong>📋 Requisitos:</strong>
+                <div class="registro-upload-rules">
+                    <strong> Requisitos:</strong>
                     <ul>
                         <li>Formatos: JPG, PNG, GIF o PDF</li>
                         <li>Tamaño máximo: 5MB</li>
@@ -396,7 +388,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="preview-image">`;
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="registro-preview-image">`;
                 };
                 reader.readAsDataURL(file);
             } else if (file.type === 'application/pdf') {
@@ -420,20 +412,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
         
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropZone.style.borderColor = '#667eea';
-            dropZone.style.background = '#f0f4ff';
+            dropZone.classList.add('registro-upload-container-hover');
         });
         
         dropZone.addEventListener('dragleave', (e) => {
             e.preventDefault();
-            dropZone.style.borderColor = '#ddd';
-            dropZone.style.background = '#f8f9fa';
+            dropZone.classList.remove('registro-upload-container-hover');
         });
         
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.style.borderColor = '#ddd';
-            dropZone.style.background = '#f8f9fa';
+            dropZone.classList.remove('registro-upload-container-hover');
             
             const file = e.dataTransfer.files[0];
             if (file) {

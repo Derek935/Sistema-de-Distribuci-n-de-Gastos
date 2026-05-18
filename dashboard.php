@@ -195,32 +195,30 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/styles.css" />
     <script src="js/vendor/apexcharts.min.js"></script>
-    
-
 </head>
 <body>
 
-
-    <div class="container">
+    <!-- Contenedor principal con clase dashboard- -->
+    <div class="dashboard-container">
         
         <!-- Estadísticas Generales -->
-        <div class="stats-grid">
-            <div class="stat-card blue">
+        <div class="dashboard-stats-grid">
+            <div class="dashboard-stat-card blue">
                 <span class="icon">💰</span>
                 <h3>Total Gastado</h3>
                 <div class="number">$<?php echo number_format($stats_generales['monto_total'], 2); ?></div>
             </div>
-            <div class="stat-card green">
+            <div class="dashboard-stat-card green">
                 <span class="icon">📋</span>
                 <h3>Total de Gastos</h3>
                 <div class="number"><?php echo $stats_generales['total_gastos']; ?></div>
             </div>
-            <div class="stat-card orange">
+            <div class="dashboard-stat-card orange">
                 <span class="icon">📈</span>
                 <h3>Promedio por Gasto</h3>
                 <div class="number">$<?php echo number_format($stats_generales['promedio_gasto'], 2); ?></div>
             </div>
-            <div class="stat-card purple">
+            <div class="dashboard-stat-card purple">
                 <span class="icon">🏢</span>
                 <h3>Localidades</h3>
                 <div class="number"><?php echo count($gastos_por_localidad); ?></div>
@@ -228,44 +226,44 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
         </div>
 
         <!-- Gráficas en Mosaico (2 columnas) -->
-        <div class="charts-grid">
+        <div class="dashboard-charts-grid">
             
             <!-- Fila 1, Columna 1: Gastos por Período -->
-            <div class="chart-card">
+            <div class="dashboard-chart-card">
                 <h3>📅 Gastos por Período</h3>
-                <div class="chart-container">
+                <div class="dashboard-chart-container">
                     <div id="chartPeriodo"></div>
                 </div>
             </div>
 
             <!-- Fila 1, Columna 2: Gastos por Rubro -->
-            <div class="chart-card">
+            <div class="dashboard-chart-card">
                 <h3>📊 Gastos por Rubro</h3>
-                <div class="chart-container">
+                <div class="dashboard-chart-container">
                     <div id="chartRubro"></div>
                 </div>
             </div>
 
             <!-- Fila 2, Columna 1: Gastos por Programa -->
-            <div class="chart-card">
+            <div class="dashboard-chart-card">
                 <h3>🎯 Gastos por Programa</h3>
-                <div class="chart-container">
+                <div class="dashboard-chart-container">
                     <div id="chartPrograma"></div>
                 </div>
             </div>
 
             <!-- Fila 2, Columna 2: Evolución Mensual -->
-            <div class="chart-card">
-                <h3>📈 Evolución Mensual</h3>
-                <div class="chart-container">
+            <div class="dashboard-chart-card">
+                <h3>📈 Evolución Mensual Gastos</h3>
+                <div class="dashboard-chart-container">
                     <div id="chartMensual"></div>
                 </div>
             </div>
         </div>
 
         <!-- Tabla de Top Empleados -->
-        <div class="table-card">
-            <h3>👥 Top 10 Empleados con Más Gastos</h3>
+        <div class="dashboard-table-card">
+            <h3>Empleados con Más Gastos</h3>
             <table>
                 <thead>
                     <tr>
@@ -301,8 +299,8 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
         </div>
 
         <!-- Gastos por Localidad -->
-        <div class="table-card">
-            <h3>📍 Gastos por Localidad</h3>
+        <div class="dashboard-table-card">
+            <h3>Gastos por Localidad</h3>
             <table>
                 <thead>
                     <tr>
@@ -335,147 +333,149 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
                 </tbody>
             </table>
         </div>
-         <!-- 🔍 SECCIÓN DE BÚSQUEDA POR TRABAJADOR -->
-<div class="search-section" style="margin: 30px 0;">
-    <h3>
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        Buscar Gastos por Trabajador
-    </h3>
-    
-    <form method="GET" class="search-form">
-        <div class="form-group">
-            <label>Tipo de Trabajador</label>
-            <select name="tipo_trabajador" id="tipo_trabajador" required>
-                <option value="mantenedor">Mantenedor</option>
-                <option value="tecnico">Técnico</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label>Seleccionar Trabajador</label>
-            <select name="trabajador_id" id="trabajador_id" required>
-                <option value="">-- Seleccione --</option>
-                <?php foreach($trabajadores as $trab): ?>
-                    <option value="<?php echo $trab['id']; ?>" 
-                            data-tipo="<?php echo strtolower($trab['tipo']); ?>">
-                        <?php echo htmlspecialchars($trab['nombre']); ?> (<?php echo $trab['tipo']; ?>)
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label>&nbsp;</label>
-            <button type="submit" name="buscar_trabajador" class="btn-search">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+        <!--  SECCIÓN DE BÚSQUEDA POR TRABAJADOR -->
+        <div class="dashboard-search-section">
+            <h3>
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                Buscar
-            </button>
-        </div>
-    </form>
-</div>
-
-<!-- RESULTADOS DE BÚSQUEDA -->
-<?php if ($trabajador_seleccionado): ?>
-    <div class="results-container" style="margin-bottom: 30px;">
-        <div class="results-header">
-            <h3 class="results-title">
-                📋 Gastos de <?php echo htmlspecialchars($trabajador_seleccionado['nombre']); ?>
+                Buscar Gastos por Trabajador
             </h3>
-            <div class="results-total">
-                Total: $<?php echo number_format($total_gastos, 2); ?> 
-                (<?php echo count($gastos_trabajador); ?> gastos)
-            </div>
+            
+            <form method="GET" class="dashboard-search-form">
+                <div class="form-group">
+                    <label>Tipo de Trabajador</label>
+                    <select name="tipo_trabajador" id="tipo_trabajador" required>
+                        <option value="mantenedor">Mantenedor</option>
+                        <option value="tecnico">Técnico</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Seleccionar Trabajador</label>
+                    <select name="trabajador_id" id="trabajador_id" required>
+                        <option value="">-- Seleccione --</option>
+                        <?php foreach($trabajadores as $trab): ?>
+                            <option value="<?php echo $trab['id']; ?>" 
+                                    data-tipo="<?php echo strtolower($trab['tipo']); ?>">
+                                <?php echo htmlspecialchars($trab['nombre']); ?> (<?php echo $trab['tipo']; ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" name="buscar_trabajador" class="dashboard-btn-search">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Buscar
+                    </button>
+                </div>
+            </form>
         </div>
-        
-        <?php if (empty($gastos_trabajador)): ?>
-            <div class="sin-resultados">
-                <div class="sin-resultados-icon">📭</div>
-                <h3>No se encontraron gastos</h3>
-                <p>Este trabajador no tiene gastos registrados en el sistema.</p>
-            </div>
-        <?php else: ?>
-            <div class="gastos-grid">
-                <?php foreach($gastos_trabajador as $gasto): ?>
-                    <div class="gasto-card">
-                        <div class="gasto-header">
-                            <div>
-                                <div class="gasto-fecha">
-                                    📅 <?php echo date('d/m/Y', strtotime($gasto['fecha_gasto'])); ?>
+
+        <!-- RESULTADOS DE BÚSQUEDA -->
+        <?php if ($trabajador_seleccionado): ?>
+            <div class="dashboard-results-container">
+                <div class="dashboard-results-header">
+                    <h3 class="dashboard-results-title">
+                        📋 Gastos de <?php echo htmlspecialchars($trabajador_seleccionado['nombre']); ?>
+                    </h3>
+                    <div class="dashboard-results-total">
+                        Total: $<?php echo number_format($total_gastos, 2); ?> 
+                        (<?php echo count($gastos_trabajador); ?> gastos)
+                    </div>
+                </div>
+                
+                <?php if (empty($gastos_trabajador)): ?>
+                    <div class="dashboard-sin-resultados">
+                        <div class="dashboard-sin-resultados-icon">📭</div>
+                        <h3>No se encontraron gastos</h3>
+                        <p>Este trabajador no tiene gastos registrados en el sistema.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="dashboard-gastos-grid">
+                        <?php foreach($gastos_trabajador as $gasto): ?>
+                            <div class="dashboard-gasto-card">
+                                <div class="dashboard-gasto-header">
+                                    <div>
+                                        <div class="dashboard-gasto-fecha">
+                                            📅 <?php echo date('d/m/Y', strtotime($gasto['fecha_gasto'])); ?>
+                                        </div>
+                                        <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">
+                                            Registrado: <?php echo date('d/m/Y H:i', strtotime($gasto['fecha_registro'])); ?>
+                                        </div>
+                                    </div>
+                                    <div class="dashboard-gasto-monto">
+                                        $<?php echo number_format($gasto['monto'], 2); ?>
+                                    </div>
                                 </div>
-                                <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">
-                                    Registrado: <?php echo date('d/m/Y H:i', strtotime($gasto['fecha_registro'])); ?>
+                                
+                                <div class="dashboard-gasto-info">
+                                    <div class="dashboard-gasto-label">Rubro</div>
+                                    <div class="dashboard-gasto-value">💼 <?php echo htmlspecialchars($gasto['nombre_rubro'] ?? 'N/A'); ?></div>
                                 </div>
-                            </div>
-                            <div class="gasto-monto">
-                                $<?php echo number_format($gasto['monto'], 2); ?>
-                            </div>
-                        </div>
-                        
-                        <div class="gasto-info">
-                            <div class="gasto-label">Rubro</div>
-                            <div class="gasto-value">💼 <?php echo htmlspecialchars($gasto['nombre_rubro'] ?? 'N/A'); ?></div>
-                        </div>
-                        
-                        <div class="gasto-info">
-                            <div class="gasto-label">Programa</div>
-                            <div class="gasto-value">📋 <?php echo htmlspecialchars($gasto['programa'] ?? 'N/A'); ?></div>
-                        </div>
-                        
-                        <div class="gasto-info">
-                            <div class="gasto-label">Período</div>
-                            <div class="gasto-value">📅 <?php echo htmlspecialchars($gasto['periodo'] ?? 'N/A'); ?></div>
-                        </div>
-                        
-                        <?php if ($gasto['descripcion']): ?>
-                            <div class="gasto-info">
-                                <div class="gasto-label">Descripción</div>
-                                <div class="gasto-value"><?php echo htmlspecialchars($gasto['descripcion']); ?></div>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($gasto['comprobante']): ?>
-                            <div class="gasto-comprobante">
-                                <div class="gasto-label">📎 Comprobante</div>
-                                <?php 
-                                $ext = strtolower(pathinfo($gasto['comprobante'], PATHINFO_EXTENSION));
-                                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): 
-                                ?>
-                                    <img src="<?php echo htmlspecialchars($gasto['comprobante']); ?>" 
-                                         alt="Comprobante" 
-                                         class="comprobante-img"
-                                         onclick="window.open(this.src, '_blank')">
-                                <?php elseif ($ext === 'pdf'): ?>
-                                    <a href="<?php echo htmlspecialchars($gasto['comprobante']); ?>" 
-                                       target="_blank" 
-                                       class="comprobante-pdf">
-                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        Ver PDF
-                                    </a>
+                                
+                                <div class="dashboard-gasto-info">
+                                    <div class="dashboard-gasto-label">Programa</div>
+                                    <div class="dashboard-gasto-value">📋 <?php echo htmlspecialchars($gasto['programa'] ?? 'N/A'); ?></div>
+                                </div>
+                                
+                                <div class="dashboard-gasto-info">
+                                    <div class="dashboard-gasto-label">Período</div>
+                                    <div class="dashboard-gasto-value">📅 <?php echo htmlspecialchars($gasto['periodo'] ?? 'N/A'); ?></div>
+                                </div>
+                                
+                                <?php if ($gasto['descripcion']): ?>
+                                    <div class="dashboard-gasto-info">
+                                        <div class="dashboard-gasto-label">Descripción</div>
+                                        <div class="dashboard-gasto-value"><?php echo htmlspecialchars($gasto['descripcion']); ?></div>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($gasto['comprobante']): ?>
+                                    <div class="dashboard-gasto-comprobante">
+                                        <div class="dashboard-gasto-label">📎 Comprobante</div>
+                                        <?php 
+                                        $ext = strtolower(pathinfo($gasto['comprobante'], PATHINFO_EXTENSION));
+                                        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): 
+                                        ?>
+                                            <img src="<?php echo htmlspecialchars($gasto['comprobante']); ?>" 
+                                                 alt="Comprobante" 
+                                                 class="dashboard-comprobante-img"
+                                                 onclick="window.open(this.src, '_blank')">
+                                        <?php elseif ($ext === 'pdf'): ?>
+                                            <a href="<?php echo htmlspecialchars($gasto['comprobante']); ?>" 
+                                               target="_blank" 
+                                               class="dashboard-comprobante-pdf">
+                                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Ver PDF
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="dashboard-gasto-comprobante">
+                                        <div class="dashboard-sin-comprobante">Sin comprobante</div>
+                                    </div>
                                 <?php endif; ?>
                             </div>
-                        <?php else: ?>
-                            <div class="gasto-comprobante">
-                                <div class="sin-comprobante">Sin comprobante</div>
-                            </div>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
-    </div>
-<?php endif; ?>
+
         <!-- Botones de Exportación -->
-        <div class="export-buttons">
-            <button onclick="openModal('modalPeriodos')" class="btn-export btn-primary">
+        <div class="dashboard-export-buttons">
+            <button onclick="openModal('modalPeriodos')" class="dashboard-btn-export dashboard-btn-primary">
                 📅 Exportar por Período
             </button>
-            <button onclick="openModal('modalFechas')" class="btn-export btn-success">
+            <button onclick="openModal('modalFechas')" class="dashboard-btn-export dashboard-btn-success">
                 📆 Exportar por Fecha de Ingreso
             </button>
         </div>
@@ -483,9 +483,9 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
     </div>
 
     <!-- Modal: Exportar por Períodos -->
-    <div id="modalPeriodos" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('modalPeriodos')">&times;</span>
+    <div id="modalPeriodos" class="dashboard-modal">
+        <div class="dashboard-modal-content">
+            <span class="dashboard-close" onclick="closeModal('modalPeriodos')">&times;</span>
             <h2>📅 Exportar Gastos por Período</h2>
             <form action="exportar_periodos.php" method="POST">
                 <div class="form-group">
@@ -502,7 +502,7 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
                         <?php endwhile; ?>
                     </select>
                 </div>
-                <button type="submit" name="exportar" class="btn btn-primary btn-block">
+                <button type="submit" name="exportar" class="btn dashboard-btn-primary btn-block">
                     📥 Descargar Excel (.xlsx)
                 </button>
             </form>
@@ -510,9 +510,9 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
     </div>
 
     <!-- Modal: Exportar por Fecha -->
-    <div id="modalFechas" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('modalFechas')">&times;</span>
+    <div id="modalFechas" class="dashboard-modal">
+        <div class="dashboard-modal-content">
+            <span class="dashboard-close" onclick="closeModal('modalFechas')">&times;</span>
             <h2>📆 Exportar Gastos por Fecha de Ingreso</h2>
             <form action="exportar_por_fecha.php" method="POST">
                 <div class="form-group">
@@ -523,7 +523,7 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
                     <label>Fecha de Fin:</label>
                     <input type="date" name="fecha_fin" required class="form-control" value="<?php echo date('Y-m-d'); ?>">
                 </div>
-                <button type="submit" name="exportar" class="btn btn-success btn-block">
+                <button type="submit" name="exportar" class="btn dashboard-btn-success btn-block">
                     📥 Descargar Excel (.xlsx)
                 </button>
             </form>
@@ -683,17 +683,17 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== FUNCIONES DE MODALES =====
 function openModal(modalId) {
     document.getElementById(modalId).style.display = 'block';
-    document.body.style.overflow = 'hidden'; // Prevenir scroll
+    document.body.style.overflow = 'hidden';
 }
 
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
-    document.body.style.overflow = 'auto'; // Restaurar scroll
+    document.body.style.overflow = 'auto';
 }
 
 // Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
+    if (event.target.classList.contains('dashboard-modal')) {
         event.target.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
@@ -702,7 +702,7 @@ window.onclick = function(event) {
 // Cerrar modal con tecla ESC
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
-        const modals = document.querySelectorAll('.modal');
+        const modals = document.querySelectorAll('.dashboard-modal');
         modals.forEach(modal => {
             if (modal.style.display === 'block') {
                 modal.style.display = 'none';

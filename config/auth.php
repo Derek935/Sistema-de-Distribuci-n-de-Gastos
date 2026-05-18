@@ -49,7 +49,7 @@ function requireAdmin() {
     
     if (!isAdmin()) {
         // Si no es admin, redirigir a registroGastos.php
-        $_SESSION['error'] = "🔒 Acceso denegado. Solo administradores pueden acceder.";
+        $_SESSION['error'] = "Acceso denegado. Solo administradores pueden acceder.";
         header("Location: registroGastos.php");
         exit();
     }
@@ -82,7 +82,7 @@ function getMenuItems() {
     
     // Para todos los usuarios
     $menu[] = [
-        'label' => '💰 Registro de Gastos',
+        'label' => ' Registro de Gastos',
         'url' => 'registroGastos.php',
         'roles' => [1, 2]
     ];
@@ -109,8 +109,8 @@ function getRoleBadge() {
     if (!$user) return '';
     
     if ($user['id_rol'] === 1) {
-        return '<span class="role-badge admin">👑 Admin</span>';
+        return '<span class="role-badge admin"> Admin</span>';
     }
-    return '<span class="role-badge user">👤 Usuario</span>';
+    return '<span class="role-badge user"> Usuario</span>';
 }
 ?>

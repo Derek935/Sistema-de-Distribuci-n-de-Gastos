@@ -120,9 +120,9 @@ $menuItems = getMenuItems();
                     </a>
                 <?php endforeach; ?>
                 
-                <a href="logout.php" class="btn-logout">🚪 Salir</a>
+                <a href="logout.php" class="btn-logout">Salir</a>
             <?php else: ?>
-                <a href="index.php" class="nav-item">🔐 Iniciar Sesión</a>
+                <a href="index.php" class="nav-item">Iniciar Sesión</a>
             <?php endif; ?>
         </nav>
     </div>
