@@ -3,12 +3,12 @@
 header('Content-Type: application/json');
 require '../conexion/conexion.php';
 
-$id_cuadrilla = $_GET['id_cuadrilla'] ?? 0;
+$id_zona = $_GET['id_zona'] ?? 0;
 
-if ($id_cuadrilla > 0) {
+if ($id_zona > 0) {
     try {
         $stmt = $pdo->prepare("SELECT id_tecnico, nombre FROM tecnico WHERE id_cuadrilla = ? AND activo = 1 ORDER BY nombre ASC");
-        $stmt->execute([$id_cuadrilla]);
+        $stmt->execute([$id_zona]);
         $tecnicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode(['success' => true, 'data' => $tecnicos]);
     } catch (PDOException $e) {

@@ -1068,3 +1068,243 @@ table tr:hover {
     font-size: 14px;
     margin-top: 20px;
 }
+/* 🔹 Overlay del modal (fondo oscuro) */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+/* 🔹 Contenido del modal */
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: slideDown 0.3s ease;
+}
+
+/* 🔹 Botón cerrar (X) */
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #1e293b;
+}
+
+/* 🔹 Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0; 
+        transform: translateY(-30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* 🔹 Botón para abrir el modal */
+.btn-open-modal {
+    padding: 12px 24px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+}
+
+.btn-open-modal:hover {
+    background: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+/* 🔹 Estilos para el contenedor del formulario (ajustados para modal) */
+.registro-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px 5px;
+}
+
+.registro-contenedor h3 {
+    color: #1e293b;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.registro-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 10px;
+    display: block;
+}
+
+.registro-contenedor > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.registro-contenedor label {
+    font-weight: 500;
+    color: #334155;
+    font-size: 14px;
+}
+
+.registro-input-date,
+.registro-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.2s;
+    background: white;
+}
+
+.registro-input-date:focus,
+.registro-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.registro-select {
+    cursor: pointer;
+}
+
+/* 🔹 Botón del formulario */
+.registro-contenedor .btn {
+    width: 100%;
+    padding: 14px;
+    background: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+    margin-top: 10px;
+}
+
+.registro-contenedor .btn:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+}
+/* 🔹 Estilos para items de rubro */
+.rubro-item {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border: 2px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.rubro-item:hover {
+    border-color: #6366f1;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+.rubro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.rubro-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 16px;
+}
+
+.btn-remove-rubro {
+    background: #fee2e2;
+    color: #991b1b;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-remove-rubro:hover {
+    background: #fecaca;
+    transform: scale(1.05);
+}
+
+.btn-add-rubro {
+    background: #22c55e !important;
+    transition: all 0.2s;
+}
+
+.btn-add-rubro:hover {
+    background: #16a34a !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* 🔹 Animación al agregar */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rubro-item.new {
+    animation: slideIn 0.3s ease;
+}
+
+/* 🔹 Total display */
+#totalDisplay {
+    color: #059669;
+}

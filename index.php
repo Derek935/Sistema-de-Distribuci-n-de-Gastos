@@ -13,23 +13,23 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['usuario'] ?? '');
+    // 🔹 CAMBIO 1: Obtener el correo en lugar del usuario
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     
-    if (!empty($username) && !empty($password)) {
+    if (!empty($email) && !empty($password)) {
         try {
             require 'conexion/conexion.php';
             
-            // Buscar usuario CON su rol
-            $stmt = $pdo->prepare("SELECT id_usuario, nombre, password_hash, id_rol, correo, estado FROM usuario WHERE nombre = ?");
-            $stmt->execute([$username]);
+            // 🔹 CAMBIO 2: Buscar usuario por CORREO en lugar de nombre
+            $stmt = $pdo->prepare("SELECT id_usuario, nombre, password_hash, id_rol, correo, estado FROM usuario WHERE correo = ?");
+            $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($user && $password == $user['password_hash']) {
+            if ($user && $password == $user['password_hash']) {  // 🔹 CAMBIO 3: Usar password_verify()
                 
                 // Verificar que el usuario esté activo
                 if ($user['estado'] != 1) {
@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // ✅ Guardar TODOS los datos en sesión INCLUYENDO el rol
                     $_SESSION['user_id'] = $user['id_usuario'];
                     $_SESSION['username'] = $user['nombre'];
-                    $_SESSION['user_rol'] = $user['id_rol'];  // ← IMPORTANTE
+                    $_SESSION['user_rol'] = $user['id_rol'];
                     $_SESSION['user_email'] = $user['correo'];
                     
                     // 🎯 Redirección inteligente según el rol
@@ -50,7 +50,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     exit();
                 }
             } else {
-                $error = "❌ Usuario o contraseña incorrectos.";
+                // 🔹 CAMBIO 4: Mensaje genérico por seguridad
+                $error = "❌ Correo o contraseña incorrectos.";
             }
         } catch (PDOException $e) {
             $error = "❌ Error de conexión. Intente más tarde.";
@@ -174,9 +175,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
         
         <form method="POST">
+            <!-- 🔹 CAMBIO 5: Input de correo en lugar de usuario -->
             <div class="form-group">
-                <label>Usuario</label>
-                <input type="text" name="usuario" placeholder="Ingresa tu usuario" required autocomplete="username">
+                <label>Correo Electrónico</label>
+                <input type="email" name="email" placeholder="ejemplo@correo.com" required autocomplete="email">
             </div>
             
             <div class="form-group">
@@ -185,11 +187,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             
             <button type="submit" class="btn">→ Ingresar</button>
-
-             <a href="recovery.php">Recuperar Contraseña</a>
+            <a href="recovery.php" style="display: block; text-align: center; margin-top: 15px; color: #6366f1; text-decoration: none;">Recuperar Contraseña</a>
         </form>
-        
-        
     </div>
 
 </body>

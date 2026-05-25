@@ -22,10 +22,18 @@ if (!file_exists($uploadDir)) {
 }
 
 // ✅ Cargar datos iniciales
-$grupos = $pdo->query("SELECT id_grupo, nombre_grupo FROM grupo WHERE activo = 1 ORDER BY nombre_grupo ASC")->fetchAll(PDO::FETCH_ASSOC);
+$zonas = $pdo->query("SELECT id_zona, nombre_zona FROM zona WHERE estado = 1 ORDER BY nombre_zona ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// 🔵 CAMBIO: Cargar localidades con su id_zona
+$localidades = $pdo->query("
+    SELECT id_localidad, nombre_localidad, id_zona 
+    FROM localidad 
+    WHERE estado = 1 
+    ORDER BY nombre_localidad ASC
+")->fetchAll(PDO::FETCH_ASSOC);
+
 $programas = $pdo->query("SELECT id_programa, programa FROM programa ORDER BY programa ASC")->fetchAll(PDO::FETCH_ASSOC);
 $rubros = $pdo->query("SELECT id_rubro, nombre_rubro FROM rubro WHERE activo = 1 ORDER BY nombre_rubro ASC")->fetchAll(PDO::FETCH_ASSOC);
-$localidades = $pdo->query("SELECT id_localidad, nombre_localidad FROM localidad WHERE estado = 1 ORDER BY nombre_localidad ASC")->fetchAll(PDO::FETCH_ASSOC);
 $periodo = $pdo->query("SELECT id_periodo, concat('Entre ',fecha_inicio,' y ',fecha_fin) periodo FROM periodo WHERE estado = 'EN PROCESO' ORDER BY periodo ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 // 🔍 Cargar todos los trabajadores (mantenedores y técnicos)
@@ -43,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
     try {
         $feini = $_POST['feini'] ?? '';
         $fefin = $_POST['fefin'] ?? '';
-        $id_localidad = !empty($_POST['localidad']) ? intval($_POST['localidad']) : 0;
+        $id_zona = !empty($_POST['zona']) ? intval($_POST['zona']) : 0;
 
         $stmtMax = $pdo->query("SELECT MAX(id_periodo+1) as max_id FROM periodo");
         $resultado = $stmtMax->fetch(PDO::FETCH_ASSOC);
@@ -51,16 +59,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
         
         if (empty($feini)) throw new Exception('La fecha de inicio es obligatoria');
         if (empty($fefin)) throw new Exception('La fecha de término es obligatoria');
-        if ($id_localidad <= 0) throw new Exception('La localidad es obligatoria');
+        if ($id_zona <= 0) throw new Exception('La zona es obligatoria');
         if ($feini > $fefin) throw new Exception('La fecha de inicio no puede ser mayor a la fecha de término');
         if (empty($id_periodo)) throw new Exception('No se pudo obtener el ID del período');
         
         $pdo->beginTransaction();
         $stmt = $pdo->prepare("
-            INSERT INTO periodo (id_periodo, fecha_inicio, fecha_fin, id_localidad, estado) 
+            INSERT INTO periodo (id_periodo, fecha_inicio, fecha_fin, id_zona, estado) 
             VALUES (?, ?, ?, ?, 'EN PROCESO')
         ");
-        $stmt->execute([$id_periodo, $feini, $fefin, $id_localidad]);
+        $stmt->execute([$id_periodo, $feini, $fefin, $id_zona]);
         $pdo->commit();
         
         $_SESSION['mensaje'] = "✅ Periodo registrado correctamente";
@@ -87,15 +95,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnperiodo'])) {
 // ============================================
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
     try {
+        // ✅ Datos comunes para todos los rubros
         $fecha_gasto = $_POST['fecha_gasto'] ?? date('Y-m-d');
-        $monto = floatval($_POST['monto_gasto'] ?? 0);
         $id_mantenedor = !empty($_POST['Mantenedor']) ? intval($_POST['Mantenedor']) : null;
         $id_tecnico = !empty($_POST['Tecnico']) ? intval($_POST['Tecnico']) : null;
         $id_periodo = !empty($_POST['Periodo']) ? intval($_POST['Periodo']) : null;
         $id_programa = !empty($_POST['Programa']) ? intval($_POST['Programa']) : null;
-        $id_rubro = !empty($_POST['Rubro']) ? intval($_POST['Rubro']) : null;
-        $observaciones = trim($_POST['observaciones'] ?? '');
         
+        // 🔹 CAMBIO: Arrays para múltiples rubros
+        $rubros = $_POST['rubro'] ?? [];
+        $montos = $_POST['monto_gasto'] ?? [];
+        $observaciones = $_POST['observaciones'] ?? [];
+        
+        // 🔹 CAMBIO: Procesar archivo de comprobante (se comparte para todos los rubros)
         $ruta_comprobante = null;
         
         if (isset($_FILES['comprobante']) && $_FILES['comprobante']['error'] === UPLOAD_ERR_OK) {
@@ -127,15 +139,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
             $ruta_comprobante = $rutaDestino;
         }
 
+        // 🔹 CAMBIO: Validaciones para múltiples rubros
         if (empty($fecha_gasto)) throw new Exception('La fecha del gasto es obligatoria');
-        if ($monto <= 0) throw new Exception('El monto debe ser mayor a 0');
-        if (!$id_rubro) throw new Exception('Debe seleccionar un rubro');
-        if (!$id_programa) throw new Exception('Debe seleccionar un programa');
         if (!$id_periodo) throw new Exception('Debe seleccionar un periodo');
+        if (!$id_programa) throw new Exception('Debe seleccionar un programa');
         if (!$id_mantenedor && !$id_tecnico) {
             throw new Exception('Debe seleccionar al menos un empleado');
         }
+        
+        // Filtrar rubros completos (con rubro, monto y observación)
+        $items_validos = [];
+        $total_general = 0;
+        
+        for ($i = 0; $i < count($rubros); $i++) {
+            $id_rubro = !empty($rubros[$i]) ? intval($rubros[$i]) : 0;
+            $monto = !empty($montos[$i]) ? floatval($montos[$i]) : 0;
+            $obs = trim($observaciones[$i] ?? '');
+            
+            if ($id_rubro > 0 && $monto > 0) {
+                $items_validos[] = [
+                    'id_rubro' => $id_rubro,
+                    'monto' => $monto,
+                    'observaciones' => $obs
+                ];
+                $total_general += $monto;
+            }
+        }
+        
+        if (empty($items_validos)) {
+            throw new Exception('Debe agregar al menos un rubro con monto válido');
+        }
 
+        // 🔹 CAMBIO: Insertar múltiples registros en transacción
         $pdo->beginTransaction();
         
         $stmt = $pdo->prepare("
@@ -145,15 +180,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 1)
         ");
         
-        $stmt->execute([
-            $fecha_gasto, $monto, $observaciones, $id_mantenedor, $id_tecnico,
-            $id_rubro, $id_periodo, $id_programa, $ruta_comprobante
-        ]);
+        $ids_gastos = [];
         
-        $id_gasto = $pdo->lastInsertId();
+        foreach ($items_validos as $item) {
+            $stmt->execute([
+                $fecha_gasto, 
+                $item['monto'], 
+                $item['observaciones'], 
+                $id_mantenedor, 
+                $id_tecnico,
+                $item['id_rubro'], 
+                $id_periodo, 
+                $id_programa, 
+                $ruta_comprobante  // Mismo comprobante para todos
+            ]);
+            $ids_gastos[] = $pdo->lastInsertId();
+        }
+        
         $pdo->commit();
         
-        $_SESSION['mensaje'] = "✅ Gasto #{$id_gasto} registrado correctamente";
+        // Mensaje con resumen
+        $cantidad = count($ids_gastos);
+        $ids_texto = implode(', ', $ids_gastos);
+        $_SESSION['mensaje'] = "✅ Se registraron {$cantidad} rubro(s) correctamente (Gastos #{$ids_texto})";
         $_SESSION['tipo_mensaje'] = 'success';
         header("Location: registroGastos.php");
         exit();
@@ -187,52 +236,76 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
 </head>
 <body>
 
-    <!-- FORMULARIO DE PERIODO -->
-    <form method="POST">          
-        <div class="registro-contenedor">
-            <img src="assets/add.png" class="registro-icon" alt="">
-            <h3>Registrar un periodo de Gasto</h3>
-            <div>
-                <label>Fecha de salida</label>
-                <input name="feini" type="date" class="registro-input-date">
-            </div>
-            <div>
-                <label>Fecha de termino</label>
-                <input name="fefin" type="date" class="registro-input-date">
-            </div>
-            <div>
-                <div class="form-group">
-                    <label>Localidad</label>
-                    <select name="localidad" id="selectLocalidad" class="registro-select" required>
-                        <option value="">Seleccione una Localidad</option>
-                        <?php foreach($localidades as $lo): ?>
-                            <option value="<?php echo $lo['id_localidad']; ?>">
-                                <?php echo htmlspecialchars($lo['nombre_localidad']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+    <!-- 🔹 BOTÓN PARA ABRIR EL MODAL -->
+    <button type="button" class="btn-open-modal" onclick="openModal('modalPeriodo')">
+        + Nuevo Periodo de Mantenimiento
+    </button>
+
+    <!-- 🔹 ESTRUCTURA DEL MODAL -->
+    <div id="modalPeriodo" class="modal-overlay" onclick="closeModalOnClick(event, 'modalPeriodo')">
+        <div class="modal-content">
+            
+            <!-- Botón cerrar (X) -->
+            <button type="button" class="modal-close" onclick="closeModal('modalPeriodo')">&times;</button>
+            
+            <!-- FORMULARIO DE PERIODO -->
+            <form method="POST">          
+                <div class="registro-contenedor">
+                    <img src="assets/add.png" class="registro-icon" alt="Icono agregar">
+                    <h3>Registrar un periodo de Mantenimiento</h3>
+                    
+                    <div>
+                        <label>Fecha de salida</label>
+                        <input name="feini" type="date" class="registro-input-date" required>
+                    </div>
+                    
+                    <div>
+                        <label>Fecha de término</label>
+                        <input name="fefin" type="date" class="registro-input-date" required>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label>Zona</label>
+                            <select name="zona" id="selectZonaPeriodo" class="registro-select" required>
+                                <option value="">Seleccione una Zona</option>
+                                <?php foreach($zonas as $zona): ?>
+                                    <option value="<?php echo $zona['id_zona']; ?>">
+                                        <?php echo htmlspecialchars($zona['nombre_zona']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div> 
+                    
+                    <button type="submit" name="btnperiodo" class="btn">+ Añadir Periodo</button>
                 </div>
-            </div> 
-            <button type="submit" name="btnperiodo" class="btn">+ Añadir Periodo</button>
+            </form>
+            
         </div>
-    </form>
-    
+    </div>
+        
     <!-- FORMULARIO DE GASTO -->
     <form method="POST" action="" enctype="multipart/form-data">
         <div class="registro-contenedor">
             <img src="assets/add.png" class="registro-icon" alt="">
             <h3>Registrar Gasto por Empleado</h3>
 
+            <!-- 🔵 CAMBIO: Zona → Localidad -->
             <div class="form-group">
-                <label>Seleccionar Empresa</label>
-                <select name="Empresa" id="selectEmpresa" class="registro-select" required>
-                    <option value="">Seleccione una Empresa</option>
-                    <?php foreach($grupos as $grupo): ?>
-                        <option value="<?php echo $grupo['id_grupo']; ?>">
-                            <?php echo htmlspecialchars($grupo['nombre_grupo']); ?>
+                <label>Seleccionar Localidad</label>
+                <select name="Localidad" id="selectLocalidad" class="registro-select" required>
+                    <option value="">Seleccione una Localidad</option>
+                    <?php foreach($localidades as $localidad): ?>
+                        <option value="<?php echo $localidad['id_localidad']; ?>" 
+                                data-id-zona="<?php echo $localidad['id_zona']; ?>">
+                            <?php echo htmlspecialchars($localidad['nombre_localidad']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+                <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+                    La zona se determinará automáticamente según la localidad seleccionada
+                </small>
             </div>
 
             <div class="form-group">
@@ -240,7 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
                 <input name="fecha_gasto" type="date" class="registro-input-date" value="<?php echo date('Y-m-d'); ?>" required>
             </div>
 
-            <h3> Seleccionar Empleado</h3>
+            <h3>Seleccionar Empleado</h3>
             <div class="registro-grid-2">
                 <div class="form-group">
                     <label>Mantenedor</label>
@@ -281,68 +354,98 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
                 </div>
             </div>
 
-            <h3> Categoría de Gasto</h3>
-            <div class="registro-grid-3">
-                <div class="form-group">
-                    <label>Rubro</label>
-                    <select name="Rubro" class="registro-select" required>
-                        <option value="">Seleccione un Rubro</option>
-                        <?php foreach($rubros as $ru): ?>
-                            <option value="<?php echo $ru['id_rubro']; ?>">
-                                <?php echo htmlspecialchars($ru['nombre_rubro']); ?>
-                            </option>
-                        <?php endforeach; ?>    
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Monto</label>
-                    <input type="number" name="monto_gasto" step="0.01" min="0.01" placeholder="$0.00" class="registro-input" required>
-                </div>
-            </div>
+            <h3> 📦 Categorías de Gasto</h3>
 
+<!-- Contenedor dinámico para rubros -->
+<div id="rubrosContainer">
+    
+    <!-- 🔹 Primer rubro (plantilla base) -->
+    <div class="rubro-item" data-index="0">
+        <div class="rubro-header">
+            <span class="rubro-title">Rubro #1</span>
+            <button type="button" class="btn-remove-rubro" onclick="removeRubro(this)" title="Eliminar rubro" style="display:none;">🗑️</button>
+        </div>
+        
+        <div class="registro-grid-3">
             <div class="form-group">
-                <label>Observaciones</label>
-                <textarea name="observaciones" rows="3" placeholder="Detalles adicionales..." class="registro-textarea"></textarea>
+                <label>Rubro *</label>
+                <select name="rubro[]" class="registro-select" required>
+                    <option value="">Seleccione un Rubro</option>
+                    <?php foreach($rubros as $ru): ?>
+                        <option value="<?php echo $ru['id_rubro']; ?>">
+                            <?php echo htmlspecialchars($ru['nombre_rubro']); ?>
+                        </option>
+                    <?php endforeach; ?>    
+                </select>
             </div>
-
             <div class="form-group">
-                <label> Comprobante (Opcional)</label>
-                
-                <div class="registro-upload-container" id="dropZone">
-                   
-                    <p>Arrastra tu archivo aquí o</p>
-                    
-                    <div class="registro-file-input-wrapper">
-                        <input type="file" 
-                               name="comprobante" 
-                               id="comprobante" 
-                               accept="image/*,application/pdf"
-                               onchange="previewFile(this)">
-                        <label for="comprobante" class="registro-file-input-label">
-                            Seleccionar Archivo
-                        </label>
-                    </div>
-                    
-                    <div class="registro-file-info" id="fileInfo">
-                        <strong>Archivo seleccionado:</strong><br>
-                        <span id="fileName"></span><br>
-                        <small id="fileSize"></small>
-                        <div id="imagePreview"></div>
-                       
-                    </div>
-                </div>
-                
-                <div class="registro-upload-rules">
-                    <strong> Requisitos:</strong>
-                    <ul>
-                        <li>Formatos: JPG o PNG</li>
-                        <li>Tamaño máximo: 5MB</li>
-                        <li>El archivo debe ser legible</li>
-                    </ul>
-                </div>
+                <label>Monto *</label>
+                <input type="number" name="monto_gasto[]" step="0.01" min="0.01" placeholder="$0.00" class="registro-input" required onchange="calcularTotal()">
             </div>
+            <div class="form-group" style="display:flex; align-items:flex-end;">
+                <button type="button" class="btn-add-rubro" onclick="addRubro()" style="width:100%; padding:12px; background:#22c55e; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">
+                    + Agregar otro rubro
+                </button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Observaciones</label>
+            <textarea name="observaciones[]" rows="2" placeholder="Detalles adicionales..." class="registro-textarea"></textarea>
+        </div>
+        
+        <hr style="border:0; border-top:1px dashed #e2e8f0; margin:15px 0;">
+    </div>
+    
+</div>
 
-            <button type="submit" name="btngasto" class="btn">+ Añadir Gasto</button>
+<!-- 🔹 Total calculado -->
+<div class="form-group" style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong style="color:#1e293b;">💰 Total del Gasto:</strong>
+        <span id="totalDisplay" style="font-size:20px; font-weight:700; color:#0f172a;">$0.00</span>
+    </div>
+</div>
+
+<!-- 🔹 Sección de Comprobante (se comparte para todos los rubros) -->
+<div class="form-group">
+    <label>📎 Comprobante (Opcional - se aplicará a todos los rubros)</label>
+    
+    <div class="registro-upload-container" id="dropZone">
+        <p>Arrastra tu archivo aquí o</p>
+        
+        <div class="registro-file-input-wrapper">
+            <input type="file" 
+                   name="comprobante" 
+                   id="comprobante" 
+                   accept="image/*,application/pdf"
+                   onchange="previewFile(this)">
+            <label for="comprobante" class="registro-file-input-label">
+                Seleccionar Archivo
+            </label>
+        </div>
+        
+        <div class="registro-file-info" id="fileInfo">
+            <strong>Archivo seleccionado:</strong><br>
+            <span id="fileName"></span><br>
+            <small id="fileSize"></small>
+            <div id="imagePreview"></div>
+        </div>
+    </div>
+    
+    <div class="registro-upload-rules">
+        <strong>Requisitos:</strong>
+        <ul>
+            <li>Formatos: JPG, PNG, GIF o PDF</li>
+            <li>Tamaño máximo: 5MB</li>
+            <li>El archivo debe ser legible</li>
+        </ul>
+    </div>
+</div>
+
+<button type="submit" name="btngasto" class="btn" style="background:#0f172a;">
+    💾 Registrar Todos los Rubros
+</button>
         </div>
     </form>
 
@@ -351,8 +454,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
     </footer>
 
     <script>
-        // Elementos del DOM
-        const selectEmpresa = document.getElementById('selectEmpresa');
+        // Elementos del DOM - 🔵 CAMBIO: selectZona → selectLocalidad
+        const selectLocalidad = document.getElementById('selectLocalidad');
         const selectMantenedor = document.getElementById('selectMantenedor');
         const selectTecnico = document.getElementById('selectTecnico');
         const fileInput = document.getElementById('comprobante');
@@ -431,11 +534,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
             }
         });
 
-        async function cargarMantenedores(idGrupo) {
+        // 🔵 CAMBIO: Función modificada para recibir idZona
+        async function cargarMantenedores(idZona) {
             try {
                 selectMantenedor.disabled = true;
                 selectMantenedor.innerHTML = '<option value="">Cargando...</option>';
-                const response = await fetch(`api/get_mantenedores.php?id_cuadrilla=${idGrupo}`);
+                const response = await fetch(`api/get_mantenedores.php?id_zona=${idZona}`);
                 const result = await response.json();
                 if (result.success) {
                     llenarSelect(selectMantenedor, result.data, 'id_mantenedor', 'nombre');
@@ -445,11 +549,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
             }
         }
 
-        async function cargarTecnicos(idGrupo) {
+        // 🔵 CAMBIO: Función modificada para recibir idZona
+        async function cargarTecnicos(idZona) {
             try {
                 selectTecnico.disabled = true;
                 selectTecnico.innerHTML = '<option value="">Cargando...</option>';
-                const response = await fetch(`api/get_tecnico.php?id_cuadrilla=${idGrupo}`);
+                const response = await fetch(`api/get_tecnico.php?id_zona=${idZona}`);
                 const result = await response.json();
                 if (result.success) {
                     llenarSelect(selectTecnico, result.data, 'id_tecnico', 'nombre');
@@ -472,15 +577,172 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto'])) {
             }
         }
 
-        selectEmpresa?.addEventListener('change', function() {
-            const idGrupo = this.value;
+        // 🔵 CAMBIO: Event listener modificado para obtener id_zona desde la localidad
+        selectLocalidad?.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const idZona = selectedOption.getAttribute('data-id-zona');
+            
+            // Limpiar selects de empleados
             selectMantenedor.innerHTML = '<option value="">-- Seleccione --</option>';
             selectMantenedor.disabled = true;
             selectTecnico.innerHTML = '<option value="">-- Seleccione --</option>';
             selectTecnico.disabled = true;
-            if (idGrupo) {
-                Promise.all([cargarMantenedores(idGrupo), cargarTecnicos(idGrupo)]);
+            
+            if (idZona) {
+                // Cargar empleados filtrados por la zona de la localidad seleccionada
+                Promise.all([cargarMantenedores(idZona), cargarTecnicos(idZona)]);
             }
         });
     </script>
+    <script>
+    // 🔹 Abrir modal
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.add('active');
+        document.body.style.overflow = 'hidden'; // Evitar scroll en el fondo
+    }
+    
+    // 🔹 Cerrar modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+        document.body.style.overflow = ''; // Restaurar scroll
+    }
+    
+    // 🔹 Cerrar modal al hacer clic fuera del contenido
+    function closeModalOnClick(event, modalId) {
+        if (event.target.id === modalId) {
+            closeModal(modalId);
+        }
+    }
+    
+    // 🔹 Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const activeModal = document.querySelector('.modal-overlay.active');
+            if (activeModal) {
+                closeModal(activeModal.id);
+            }
+        }
+    });
+      // 🔹 Contador para índices únicos
+    let rubroCounter = 1;
+    
+    // 🔹 Función para agregar nuevo rubro
+    function addRubro() {
+        const container = document.getElementById('rubrosContainer');
+        const newIndex = rubroCounter++;
+        
+        // Obtener opciones de rubros desde el primer select
+        const firstSelect = document.querySelector('select[name="rubro[]"]');
+        const rubroOptions = firstSelect.innerHTML;
+        
+        // Crear nuevo item de rubro
+        const newItem = document.createElement('div');
+        newItem.className = 'rubro-item new';
+        newItem.dataset.index = newIndex;
+        
+        newItem.innerHTML = `
+            <div class="rubro-header">
+                <span class="rubro-title">Rubro #${newIndex + 1}</span>
+                <button type="button" class="btn-remove-rubro" onclick="removeRubro(this)" title="Eliminar rubro">🗑️ Eliminar</button>
+            </div>
+            
+            <div class="registro-grid-3">
+                <div class="form-group">
+                    <label>Rubro *</label>
+                    <select name="rubro[]" class="registro-select" required>
+                        ${rubroOptions}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Monto *</label>
+                    <input type="number" name="monto_gasto[]" step="0.01" min="0.01" placeholder="$0.00" class="registro-input" required onchange="calcularTotal()">
+                </div>
+                <div class="form-group" style="display:flex; align-items:flex-end;">
+                    <button type="button" class="btn-remove-rubro" onclick="removeRubro(this)" style="width:100%; background:#ef4444; color:white;">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Observaciones</label>
+                <textarea name="observaciones[]" rows="2" placeholder="Detalles adicionales..." class="registro-textarea"></textarea>
+            </div>
+            
+            <hr style="border:0; border-top:1px dashed #e2e8f0; margin:15px 0;">
+        `;
+        
+        container.appendChild(newItem);
+        
+        // Mostrar botones de eliminar en todos los items
+        document.querySelectorAll('.btn-remove-rubro').forEach(btn => {
+            btn.style.display = 'inline-block';
+        });
+        
+        // Ocultar botón "Agregar" del primer item si hay más de uno
+        updateAddButtonVisibility();
+        
+        // Calcular total
+        calcularTotal();
+    }
+    
+    // 🔹 Función para eliminar rubro
+    function removeRubro(button) {
+        const rubroItem = button.closest('.rubro-item');
+        const items = document.querySelectorAll('.rubro-item');
+        
+        // No permitir eliminar si es el único rubro
+        if (items.length <= 1) {
+            alert('⚠️ Debe haber al menos un rubro registrado');
+            return;
+        }
+        
+        // Confirmar eliminación
+        if (confirm('¿Estás seguro de eliminar este rubro?')) {
+            rubroItem.style.animation = 'slideIn 0.2s ease reverse';
+            setTimeout(() => {
+                rubroItem.remove();
+                updateAddButtonVisibility();
+                calcularTotal();
+            }, 200);
+        }
+    }
+    
+    // 🔹 Actualizar visibilidad del botón "Agregar"
+    function updateAddButtonVisibility() {
+        const items = document.querySelectorAll('.rubro-item');
+        const firstItem = items[0];
+        const addBtn = firstItem?.querySelector('.btn-add-rubro');
+        
+        if (items.length >= 3) {
+            // Limitar a 3 rubros por gasto (ajustable)
+            if (addBtn) addBtn.closest('.form-group').style.display = 'none';
+        } else {
+            if (addBtn) addBtn.closest('.form-group').style.display = 'flex';
+        }
+    }
+    
+    // 🔹 Calcular total de todos los montos
+    function calcularTotal() {
+        const montos = document.querySelectorAll('input[name="monto_gasto[]"]');
+        let total = 0;
+        
+        montos.forEach(input => {
+            const valor = parseFloat(input.value) || 0;
+            total += valor;
+        });
+        
+        // Formatear como moneda
+        document.getElementById('totalDisplay').textContent = 
+            '$' + total.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    
+    // 🔹 Inicializar: ocultar botones de eliminar al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-remove-rubro').forEach(btn => {
+            btn.style.display = 'none';
+        });
+        calcularTotal();
+    });
+</script>
 <?php require_once 'includes/footer.php'; ?>
