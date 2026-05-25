@@ -86,15 +86,21 @@ GROUP BY mes, mes_nombre
 ORDER BY mes ASC");
 $gastos_por_mes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 7. Gastos por Localidad
+// ============================================
+// 🔵 7. GASTOS POR LOCALIDAD (MODIFICADO)
+// ============================================
+// Relación: localidad → periodo (vía id_zona) → gasto
 $stmt = $pdo->query("SELECT 
+    l.id_localidad,
     l.nombre_localidad,
-    COUNT(g.id_gasto) as cantidad,
+    l.id_zona,
+    COUNT(DISTINCT g.id_gasto) as cantidad,
     COALESCE(SUM(g.monto), 0) as total
 FROM localidad l
-INNER JOIN periodo p ON l.id_localidad = p.id_localidad
+LEFT JOIN periodo p ON l.id_zona = p.id_zona
 LEFT JOIN gasto g ON p.id_periodo = g.id_periodo AND g.estado = 1
-GROUP BY l.id_localidad, l.nombre_localidad
+WHERE l.estado = 1
+GROUP BY l.id_localidad, l.nombre_localidad, l.id_zona
 ORDER BY total DESC");
 $gastos_por_localidad = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -155,7 +161,8 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
                 g.comprobante,
                 g.fecha_registro,
                 r.nombre_rubro,
-                p.programa
+                p.programa,
+                CONCAT('Entre ', DATE_FORMAT(per.fecha_inicio, '%d/%m/%Y'), ' y ', DATE_FORMAT(per.fecha_fin, '%d/%m/%Y')) as periodo
             FROM gasto g
             LEFT JOIN rubro r ON g.id_rubro = r.id_rubro
             LEFT JOIN programa p ON g.id_programa = p.id_programa
@@ -298,13 +305,14 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
             </table>
         </div>
 
-        <!-- Gastos por Localidad -->
+        <!-- 🔵 GASTOS POR LOCALIDAD (MODIFICADO) -->
         <div class="dashboard-table-card">
-            <h3>Gastos por Localidad</h3>
+            <h3>📍 Gastos por Localidad</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Localidad</th>
+                        <th>Zona</th>
                         <th>Cantidad de Gastos</th>
                         <th>Total</th>
                         <th>Porcentaje</th>
@@ -318,6 +326,11 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
                     ?>
                     <tr>
                         <td><strong><?php echo htmlspecialchars($loc['nombre_localidad']); ?></strong></td>
+                        <td>
+                            <span class="badge badge-info">
+                                Zona <?php echo $loc['id_zona']; ?>
+                            </span>
+                        </td>
                         <td><?php echo $loc['cantidad']; ?></td>
                         <td><strong>$<?php echo number_format($loc['total'], 2); ?></strong></td>
                         <td>
@@ -330,7 +343,25 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
                         </td>
                     </tr>
                     <?php endforeach; ?>
+                    <?php if (empty($gastos_por_localidad)): ?>
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: #95a5a6;">
+                            No hay gastos registrados por localidad
+                        </td>
+                    </tr>
+                    <?php endif; ?>
                 </tbody>
+                <?php if (!empty($gastos_por_localidad)): ?>
+                <tfoot>
+                    <tr style="background: #f8f9fa; font-weight: bold;">
+                        <td>Total</td>
+                        <td>-</td>
+                        <td><?php echo array_sum(array_column($gastos_por_localidad, 'cantidad')); ?></td>
+                        <td>$<?php echo number_format(array_sum(array_column($gastos_por_localidad, 'total')), 2); ?></td>
+                        <td>100%</td>
+                    </tr>
+                </tfoot>
+                <?php endif; ?>
             </table>
         </div>
 

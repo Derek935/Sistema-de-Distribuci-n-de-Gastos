@@ -1134,177 +1134,206 @@ table tr:hover {
     }
 }
 
-/* 🔹 Botón para abrir el modal */
-.btn-open-modal {
-    padding: 12px 24px;
-    background: #6366f1;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'Outfit', sans-serif;
-}
-
-.btn-open-modal:hover {
-    background: #4f46e5;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-}
-
-/* 🔹 Estilos para el contenedor del formulario (ajustados para modal) */
-.registro-contenedor {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 10px 5px;
-}
-
-.registro-contenedor h3 {
-    color: #1e293b;
-    font-size: 20px;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.registro-icon {
-    width: 50px;
-    height: 50px;
-    margin: 0 auto 10px;
-    display: block;
-}
-
-.registro-contenedor > div {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.registro-contenedor label {
-    font-weight: 500;
-    color: #334155;
-    font-size: 14px;
-}
-
-.registro-input-date,
-.registro-select {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: 'Outfit', sans-serif;
-    transition: all 0.2s;
-    background: white;
-}
-
-.registro-input-date:focus,
-.registro-select:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.registro-select {
-    cursor: pointer;
-}
-
-/* 🔹 Botón del formulario */
-.registro-contenedor .btn {
-    width: 100%;
-    padding: 14px;
-    background: #0f172a;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'Outfit', sans-serif;
-    margin-top: 10px;
-}
-
-.registro-contenedor .btn:hover {
-    background: #1e293b;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
-}
-/* 🔹 Estilos para items de rubro */
-.rubro-item {
-    background: #f8fafc;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    border: 2px solid #e2e8f0;
-    transition: all 0.2s;
-}
-
-.rubro-item:hover {
-    border-color: #6366f1;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-}
-
-.rubro-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.rubro-title {
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 16px;
-}
-
-.btn-remove-rubro {
-    background: #fee2e2;
-    color: #991b1b;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-.btn-remove-rubro:hover {
-    background: #fecaca;
-    transform: scale(1.05);
-}
-
-.btn-add-rubro {
-    background: #22c55e !important;
-    transition: all 0.2s;
-}
-
-.btn-add-rubro:hover {
-    background: #16a34a !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-}
-
-/* 🔹 Animación al agregar */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.rubro-item.new {
-    animation: slideIn 0.3s ease;
-}
-
-/* 🔹 Total display */
-#totalDisplay {
-    color: #059669;
-}
+        .main-selector {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+        
+        .selector-btn {
+            flex: 1;
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .selector-btn:hover {
+            border-color: #667eea;
+            background: #f8fafc;
+        }
+        
+        .selector-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-container {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .form-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            padding: 5px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            width: fit-content;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover {
+            background: white;
+            color: #334155;
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-section {
+            display: none;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        .rubrosContainer {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        
+        .rubro-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .rubro-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .rubro-title {
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        .btn-remove-rubro {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .btn-remove-rubro:hover {
+            background: #dc2626;
+        }
+        
+        .btn-add-rubro {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-add-rubro:hover {
+            background: #5568d3;
+        }
+        
+        .total-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-periodo {
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        }
+        
+        .btn-periodo:hover {
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .main-selector {
+                flex-direction: column;
+            }
+            
+            .form-tabs {
+                width: 100%;
+                overflow-x: auto;
+            }
+        }
