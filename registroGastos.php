@@ -236,7 +236,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
     <link rel="stylesheet" href="css/styles.css" />
     <style>
         /* ===== ESTILOS PARA VISTA DIRECTA (SIN MODALES) ===== */
-
     </style>
 </head>
 <body>
@@ -653,15 +652,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
 
         // ===== CAMBIO DE FORMULARIO PRINCIPAL =====
         function showForm(formType, btn) {
-            // Actualizar botones del selector principal
             document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            // Mostrar/ocultar contenedores de formulario
             document.querySelectorAll('.form-container').forEach(fc => fc.classList.remove('active'));
             document.getElementById(`form${formType === 'gastos' ? 'Gastos' : 'Periodo'}`).classList.add('active');
-            
-            // Recalcular totales al mostrar
             if (formType === 'gastos') {
                 calcularTotal('mantenedor');
                 calcularTotal('tecnico');
@@ -673,10 +667,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
             event.preventDefault();
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            
             document.querySelectorAll('.form-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(`form${tipo === 'mantenedor' ? 'Mantenedor' : 'Tecnico'}`).classList.add('active');
-            
             calcularTotal('mantenedor');
             calcularTotal('tecnico');
         }
@@ -701,6 +693,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
                         select.appendChild(opt);
                     });
                     select.disabled = false;
+                    
+                    // ✅ Si es formulario técnico y ya hay un mantenedor seleccionado, preseleccionar técnico
+                    if (tipo === 'tecnico' && select.value !== '') {
+                        seleccionarPrimerTecnicoDisponible();
+                    }
                 }
             } catch (e) { console.error(e); }
         }
@@ -715,7 +712,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
                 const res = await fetch(`api/get_tecnico.php?id_zona=${idZona}`);
                 const data = await res.json();
                 if (data.success) {
-                    select.innerHTML = '<option value="">-- Seleccione --</option>';
+                    select.innerHTML = '<option value="">-- Seleccione Técnico --</option>';
                     data.data.forEach(item => {
                         const opt = document.createElement('option');
                         opt.value = item.id_tecnico;
@@ -723,8 +720,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
                         select.appendChild(opt);
                     });
                     select.disabled = false;
+                    
+                    // ✅ Si hay un mantenedor seleccionado, preseleccionar primer técnico disponible
+                    const selectMant = document.getElementById('selectMantenedorTec');
+                    if (selectMant && selectMant.value !== '') {
+                        seleccionarPrimerTecnicoDisponible();
+                    }
                 }
             } catch (e) { console.error(e); }
+        }
+
+        // ✅ FUNCIÓN NUEVA: Selecciona el primer técnico disponible al cambiar mantenedor
+        function seleccionarPrimerTecnicoDisponible() {
+            const selectTec = document.getElementById('selectTecnicoTec');
+            const selectMant = document.getElementById('selectMantenedorTec');
+
+            // Verificaciones de seguridad
+            if (selectTec && selectMant && 
+                selectTec.options.length > 1 && 
+                !selectTec.disabled && 
+                selectMant.value !== '') {
+                
+                // Seleccionar la primera opción real (índice 1, el 0 es "-- Seleccione --")
+                selectTec.value = selectTec.options[1].value;
+
+                // 🎨 Feedback visual temporal (borde verde)
+                selectTec.style.borderColor = '#10b981';
+                selectTec.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.2)';
+                setTimeout(() => {
+                    selectTec.style.borderColor = '';
+                    selectTec.style.boxShadow = '';
+                }, 1200);
+            }
         }
 
         // ===== INICIALIZACIÓN =====
@@ -765,6 +792,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
                             cargarMantenedoresPorZona(idZona, 'tecnico'),
                             cargarTecnicosPorZona(idZona)
                         ]);
+                    }
+                });
+            }
+
+            // ✅ NUEVO: Listener para preseleccionar técnico al cambiar mantenedor (formulario técnico)
+            const selectMantenedorTec = document.getElementById('selectMantenedorTec');
+            if (selectMantenedorTec) {
+                selectMantenedorTec.addEventListener('change', function() {
+                    // Solo ejecutar si hay opciones cargadas en el select de técnicos
+                    const selectTec = document.getElementById('selectTecnicoTec');
+                    if (selectTec && selectTec.options.length > 1 && !selectTec.disabled) {
+                        seleccionarPrimerTecnicoDisponible();
                     }
                 });
             }
