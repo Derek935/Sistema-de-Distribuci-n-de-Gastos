@@ -635,7 +635,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
             const container = document.getElementById(`rubrosContainer${suffix}`);
             const items = container.querySelectorAll('.rubro-item');
             const firstAddBtn = container.querySelector('.btn-add-rubro');
-            if (items.length >= 3 && firstAddBtn) {
+            if (items.length >= 10 && firstAddBtn) {
                 firstAddBtn.closest('.form-group').style.display = 'none';
             } else if (firstAddBtn) {
                 firstAddBtn.closest('.form-group').style.display = 'flex';
