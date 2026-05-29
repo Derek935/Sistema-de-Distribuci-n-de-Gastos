@@ -792,6 +792,62 @@ table tr:hover {
         margin: 10% auto;
     }
 }
+        /* ===== FILTRO DE PERÍODO ===== */
+        .periodo-filtro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .periodo-filtro label {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0;
+        }
+        .periodo-filtro select {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 280px;
+            background: white;
+            cursor: pointer;
+        }
+        .periodo-filtro button {
+            padding: 10px 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .periodo-filtro button:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        .periodo-filtro .btn-clear {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .periodo-filtro .btn-clear:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .filtro-activo-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
 /* ============================================
    RECOVERY.PHP - ESTILOS ESPECÍFICOS
