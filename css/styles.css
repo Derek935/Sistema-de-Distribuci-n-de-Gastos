@@ -1337,11 +1337,17 @@ table tr:hover {
                 overflow-x: auto;
             }
         }
-
-           .swal2-popup { font-family: 'Outfit', sans-serif !important; border-radius: 16px !important; }
+ .swal2-popup { font-family: 'Outfit', sans-serif !important; border-radius: 16px !important; }
     .swal2-confirm { border-radius: 8px !important; font-weight: 600 !important; }
     
-    /* ✅ RESTAURAR ESTILOS DE FORMULARIOS */
+    /* ✅ CSS PARA MOSTRAR/OCULTAR FORMULARIOS */
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Estilos de formularios */
     .registro-select {
         width: 100%;
         padding: 10px;
@@ -1381,19 +1387,23 @@ table tr:hover {
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
     .rubro-item {
-        display: grid;
-        grid-template-columns: 1fr 1fr auto;
+        display: flex;
+        flex-direction: column;
         gap: 10px;
-        margin-bottom: 10px;
         padding: 15px;
         background: #f8fafc;
         border-radius: 8px;
-        align-items: start;
+        margin-bottom: 15px;
+        border: 1px solid #e2e8f0;
     }
     .rubro-item select,
-    .rubro-item input,
-    .rubro-item textarea {
+    .rubro-item input[type="number"] {
         margin-bottom: 0;
+    }
+    .rubro-item textarea {
+        width: 100%;
+        min-height: 80px;
+        resize: vertical;
     }
     label {
         display: block;

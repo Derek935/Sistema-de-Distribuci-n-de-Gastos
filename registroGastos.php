@@ -238,6 +238,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
     <style>
         .swal2-popup { font-family: 'Outfit', sans-serif !important; border-radius: 16px !important; }
         .swal2-confirm { border-radius: 8px !important; font-weight: 600 !important; }
+        
+        /* ✅ CSS CRÍTICO PARA MOSTRAR/OCULTAR FORMULARIOS */
+        .form-container {
+            display: none !important;
+            animation: fadeIn 0.3s ease;
+        }
+        .form-container.active {
+            display: block !important;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -260,228 +273,237 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
 
             <!-- FORMULARIO MANTENEDOR -->
             <div id="formMantenedor" class="form-section active">
-    <form method="POST" action="" enctype="multipart/form-data">
-        <input type="hidden" name="tipo_empleado" value="mantenedor">
-        
-        <div class="form-group" style="margin-bottom: 15px;">
-            <label>📍 Localidad</label>
-            <select name="Localidad" id="selectLocalidadMant" class="registro-select" required onchange="cargarMantenedores(this.value, 'mantenedor')">
-                <option value="">Seleccione una Localidad</option>
-                <?php foreach($localidades as $loc): ?>
-                    <option value="<?= $loc['id_localidad'] ?>" data-zona="<?= $loc['id_zona'] ?>"><?= htmlspecialchars($loc['nombre_localidad']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <input type="hidden" name="tipo_empleado" value="mantenedor">
+                    
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>📍 Localidad</label>
+                        <select name="Localidad" id="selectLocalidadMant" class="registro-select" required onchange="cargarMantenedores(this.value, 'mantenedor')">
+                            <option value="">Seleccione una Localidad</option>
+                            <?php foreach($localidades as $loc): ?>
+                                <option value="<?= $loc['id_localidad'] ?>" data-zona="<?= $loc['id_zona'] ?>"><?= htmlspecialchars($loc['nombre_localidad']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-        <div class="form-group" style="margin-bottom: 15px;">
-            <label>📅 Fecha</label>
-            <input name="fecha_gasto" type="date" value="<?= date('Y-m-d') ?>" required class="registro-select">
-        </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>📅 Fecha</label>
+                        <input name="fecha_gasto" type="date" value="<?= date('Y-m-d') ?>" required class="registro-select">
+                    </div>
 
-        <h4>👷 Mantenedor</h4>
-        <div class="form-group" style="margin-bottom: 15px;">
-            <select name="Mantenedor" id="selectMantenedorMant" class="registro-select" required>
-                <option value="">-- Seleccione --</option>
-            </select>
-        </div>
+                    <h4>👷 Mantenedor</h4>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <select name="Mantenedor" id="selectMantenedorMant" class="registro-select" required>
+                            <option value="">-- Seleccione --</option>
+                        </select>
+                    </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label>Periodo</label>
-                <select name="Periodo" class="registro-select" required>
-                    <option value="">Seleccione</option>
-                    <?php foreach($periodo as $p): ?>
-                        <option value="<?= $p['id_periodo'] ?>"><?= htmlspecialchars($p['periodo']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label>Periodo</label>
+                            <select name="Periodo" class="registro-select" required>
+                                <option value="">Seleccione</option>
+                                <?php foreach($periodo as $p): ?>
+                                    <option value="<?= $p['id_periodo'] ?>"><?= htmlspecialchars($p['periodo']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Programa</label>
+                            <select name="Programa" class="registro-select" required>
+                                <option value="">Seleccione</option>
+                                <?php foreach($programas as $pr): ?>
+                                    <option value="<?= $pr['id_programa'] ?>"><?= htmlspecialchars($pr['programa']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h4>📦 Rubros</h4>
+                    <div id="rubrosContainerMant">
+                        <div class="rubro-item">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                <select name="rubro[]" class="registro-select" required>
+                                    <option value="">Rubro</option>
+                                    <?php foreach($rubros as $r): ?>
+                                        <option value="<?= $r['id_rubro'] ?>"><?= htmlspecialchars($r['nombre_rubro']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="number" name="monto_gasto[]" step="0.01" min="0.01" placeholder="$0.00" required onchange="calcularTotal('mantenedor')" class="registro-select">
+                            </div>
+                            <textarea name="observaciones[]" 
+                                      placeholder="Escribe aquí las observaciones del gasto..." 
+                                      class="registro-select" 
+                                      rows="3" 
+                                      style="width: 100%; min-height: 80px; resize: vertical;"></textarea>
+                            <button type="button" onclick="this.parentElement.remove(); calcularTotal('mantenedor')" 
+                                    style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; margin-top: 10px; align-self: start;">
+                                🗑️ Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addRubro('mantenedor')" 
+                            style="margin: 10px 0; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        + Agregar rubro
+                    </button>
+
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 18px;">
+                        <strong>💰 Total del Gasto:</strong>
+                        <span id="totalDisplayMant">$0.00</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📎 Comprobante (opcional)</label>
+                        <input type="file" name="comprobante" accept="image/*,application/pdf" onchange="previewFile(this)" class="registro-select">
+                    </div>
+
+                    <button type="submit" name="btngasto_mantenedor" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 16px;">
+                        💾 Registrar Gastos de Mantenedor
+                    </button>
+                </form>
             </div>
-            <div>
-                <label>Programa</label>
-                <select name="Programa" class="registro-select" required>
-                    <option value="">Seleccione</option>
-                    <?php foreach($programas as $pr): ?>
-                        <option value="<?= $pr['id_programa'] ?>"><?= htmlspecialchars($pr['programa']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
 
-       <h4>📦 Rubros</h4>
-<div id="rubrosContainerMant">
-    <div class="rubro-item">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-            <select name="rubro[]" class="registro-select" required>
-                <option value="">Rubro</option>
-                <?php foreach($rubros as $r): ?>
-                    <option value="<?= $r['id_rubro'] ?>"><?= htmlspecialchars($r['nombre_rubro']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <input type="number" name="monto_gasto[]" step="0.01" min="0.01" placeholder="$0.00" required onchange="calcularTotal('mantenedor')" class="registro-select">
-        </div>
-        <!-- ✅ TEXTAREA DEBAJO, OCUPANDO TODO EL ANCHO -->
-        <textarea name="observaciones[]" 
-                  placeholder="Escribe aquí las observaciones del gasto..." 
-                  class="registro-select" 
-                  rows="3" 
-                  style="width: 100%; min-height: 80px; resize: vertical;"></textarea>
-        <button type="button" onclick="this.parentElement.remove(); calcularTotal('mantenedor')" 
-                style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; margin-top: 10px; align-self: start;">
-            🗑️ Eliminar
-        </button>
-    </div>
-</div>
-<button type="button" onclick="addRubro('mantenedor')" 
-        style="margin: 10px 0; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-    + Agregar rubro
-</button>
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 18px;">
-            <strong>💰 Total del Gasto:</strong>
-            <span id="totalDisplayMant">$0.00</span>
-        </div>
-
-        <div class="form-group">
-            <label>📎 Comprobante (opcional)</label>
-            <input type="file" name="comprobante" accept="image/*,application/pdf" onchange="previewFile(this)" class="registro-select">
-        </div>
-
-        <button type="submit" name="btngasto_mantenedor" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 16px;">
-            💾 Registrar Gastos de Mantenedor
-        </button>
-    </form>
-</div>
             <!-- FORMULARIO TÉCNICO -->
             <div id="formTecnico" class="form-section">
-    <form method="POST" action="" enctype="multipart/form-data">
-        <input type="hidden" name="tipo_empleado" value="tecnico">
-        
-        <div class="form-group" style="margin-bottom: 15px;">
-            <label>📍 Localidad</label>
-            <select name="Localidad" id="selectLocalidadTec" class="registro-select" required onchange="cargarEquipo(this.value)">
-                <option value="">Seleccione una Localidad</option>
-                <?php foreach($localidades as $loc): ?>
-                    <option value="<?= $loc['id_localidad'] ?>" data-zona="<?= $loc['id_zona'] ?>"><?= htmlspecialchars($loc['nombre_localidad']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <input type="hidden" name="tipo_empleado" value="tecnico">
+                    
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>📍 Localidad</label>
+                        <select name="Localidad" id="selectLocalidadTec" class="registro-select" required onchange="cargarEquipo(this.value)">
+                            <option value="">Seleccione una Localidad</option>
+                            <?php foreach($localidades as $loc): ?>
+                                <option value="<?= $loc['id_localidad'] ?>" data-zona="<?= $loc['id_zona'] ?>"><?= htmlspecialchars($loc['nombre_localidad']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-        <div class="form-group" style="margin-bottom: 15px;">
-            <label>📅 Fecha</label>
-            <input name="fecha_gasto" type="date" value="<?= date('Y-m-d') ?>" required class="registro-select">
-        </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>📅 Fecha</label>
+                        <input name="fecha_gasto" type="date" value="<?= date('Y-m-d') ?>" required class="registro-select">
+                    </div>
 
-        <h4>👥 Equipo</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label>👷 Mantenedor</label>
-                <!-- ✅ AGREGAR onchange para preselección -->
-                <select name="Mantenedor" id="selectMantenedorTec" class="registro-select" onchange="seleccionarPrimerTecnico()">
-                    <option value="">-- Seleccione --</option>
-                </select>
-            </div>
-            <div>
-                <label>🔧 Técnico *</label>
-                <select name="Tecnico" id="selectTecnicoTec" class="registro-select" required>
-                    <option value="">-- Seleccione --</option>
-                </select>
-            </div>
-        </div>
+                    <h4>👥 Equipo</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label>👷 Mantenedor</label>
+                            <select name="Mantenedor" id="selectMantenedorTec" class="registro-select" onchange="seleccionarPrimerTecnico()">
+                                <option value="">-- Seleccione --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>🔧 Técnico *</label>
+                            <select name="Tecnico" id="selectTecnicoTec" class="registro-select" required>
+                                <option value="">-- Seleccione --</option>
+                            </select>
+                        </div>
+                    </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label>Periodo</label>
-                <select name="Periodo" class="registro-select" required>
-                    <option value="">Seleccione</option>
-                    <?php foreach($periodo as $p): ?>
-                        <option value="<?= $p['id_periodo'] ?>"><?= htmlspecialchars($p['periodo']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div>
-                <label>Programa</label>
-                <select name="Programa" class="registro-select" required>
-                    <option value="">Seleccione</option>
-                    <?php foreach($programas as $pr): ?>
-                        <option value="<?= $pr['id_programa'] ?>"><?= htmlspecialchars($pr['programa']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label>Periodo</label>
+                            <select name="Periodo" class="registro-select" required>
+                                <option value="">Seleccione</option>
+                                <?php foreach($periodo as $p): ?>
+                                    <option value="<?= $p['id_periodo'] ?>"><?= htmlspecialchars($p['periodo']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Programa</label>
+                            <select name="Programa" class="registro-select" required>
+                                <option value="">Seleccione</option>
+                                <?php foreach($programas as $pr): ?>
+                                    <option value="<?= $pr['id_programa'] ?>"><?= htmlspecialchars($pr['programa']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
 
-        <h4>📦 Rubros</h4>
-<div id="rubrosContainerTec">
-    <div class="rubro-item">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-            <select name="rubro[]" class="registro-select" required>
-                <option value="">Rubro</option>
-                <?php foreach($rubros as $r): ?>
-                    <option value="<?= $r['id_rubro'] ?>"><?= htmlspecialchars($r['nombre_rubro']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <input type="number" name="monto_gasto[]" step="0.01" min="0.01" placeholder="$0.00" required onchange="calcularTotal('tecnico')" class="registro-select">
+                    <h4>📦 Rubros</h4>
+                    <div id="rubrosContainerTec">
+                        <div class="rubro-item">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                <select name="rubro[]" class="registro-select" required>
+                                    <option value="">Rubro</option>
+                                    <?php foreach($rubros as $r): ?>
+                                        <option value="<?= $r['id_rubro'] ?>"><?= htmlspecialchars($r['nombre_rubro']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="number" name="monto_gasto[]" step="0.01" min="0.01" placeholder="$0.00" required onchange="calcularTotal('tecnico')" class="registro-select">
+                            </div>
+                            <textarea name="observaciones[]" 
+                                      placeholder="Escribe aquí las observaciones del gasto..." 
+                                      class="registro-select" 
+                                      rows="3" 
+                                      style="width: 100%; min-height: 80px; resize: vertical;"></textarea>
+                            <button type="button" onclick="this.parentElement.remove(); calcularTotal('tecnico')" 
+                                    style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; margin-top: 10px; align-self: start;">
+                                🗑️ Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addRubro('tecnico')" 
+                            style="margin: 10px 0; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        + Agregar rubro
+                    </button>
+
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 18px;">
+                        <strong>💰 Total del Gasto:</strong>
+                        <span id="totalDisplayTec">$0.00</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📎 Comprobante (opcional)</label>
+                        <input type="file" name="comprobante" accept="image/*,application/pdf" onchange="previewFile(this)" class="registro-select">
+                    </div>
+
+                    <button type="submit" name="btngasto_tecnico" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 16px;">
+                        💾 Registrar Gastos de Técnico
+                    </button>
+                </form>
+            </div>
         </div>
-        <!-- ✅ TEXTAREA DEBAJO, OCUPANDO TODO EL ANCHO -->
-        <textarea name="observaciones[]" 
-                  placeholder="Escribe aquí las observaciones del gasto..." 
-                  class="registro-select" 
-                  rows="3" 
-                  style="width: 100%; min-height: 80px; resize: vertical;"></textarea>
-        <button type="button" onclick="this.parentElement.remove(); calcularTotal('tecnico')" 
-                style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; margin-top: 10px; align-self: start;">
-            🗑️ Eliminar
-        </button>
     </div>
-</div>
-<button type="button" onclick="addRubro('tecnico')" 
-        style="margin: 10px 0; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-    + Agregar rubro
-</button>
 
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 18px;">
-            <strong>💰 Total del Gasto:</strong>
-            <span id="totalDisplayTec">$0.00</span>
-        </div>
-
-        <div class="form-group">
-            <label>📎 Comprobante (opcional)</label>
-            <input type="file" name="comprobante" accept="image/*,application/pdf" onchange="previewFile(this)" class="registro-select">
-        </div>
-
-        <button type="submit" name="btngasto_tecnico" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 16px;">
-            💾 Registrar Gastos de Técnico
-        </button>
-    </form>
-</div>
-
-    <!-- 🔹 FORMULARIO: PERIODO -->
+    <!-- 🔹 FORMULARIO: PERIODO DE MANTENIMIENTO (CORREGIDO) -->
     <div id="formPeriodo" class="form-container">
         <div class="form-card">
-            <h2 style="margin-bottom: 20px; color: #1e293b;">📅 Nuevo Periodo</h2>
+            <h2 style="margin-bottom: 20px; color: #1e293b; font-size: 20px; font-weight: 700;">
+                📅 Nuevo Periodo de Mantenimiento
+            </h2>
             <form method="POST">
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label>Fecha inicio</label>
-                    <input name="feini" type="date" required>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #334155;">
+                        Fecha de salida
+                    </label>
+                    <input name="feini" type="date" required class="registro-select">
                 </div>
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label>Fecha fin</label>
-                    <input name="fefin" type="date" required>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #334155;">
+                        Fecha de término
+                    </label>
+                    <input name="fefin" type="date" required class="registro-select">
                 </div>
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label>Zona</label>
-                    <select name="zona" required>
-                        <option value="">Seleccione</option>
-                        <?php foreach($zonas as $z): ?>
-                            <option value="<?= $z['id_zona'] ?>"><?= htmlspecialchars($z['nombre_zona']) ?></option>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #334155;">
+                        Zona
+                    </label>
+                    <select name="zona" required class="registro-select">
+                        <option value="">Seleccione una Zona</option>
+                        <?php foreach($zonas as $zona): ?>
+                            <option value="<?= $zona['id_zona'] ?>"><?= htmlspecialchars($zona['nombre_zona']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" name="btnperiodo" style="width: 100%; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-                    + Añadir
+                <button type="submit" name="btnperiodo" class="btn-primary btn-periodo">
+                    + Añadir Periodo
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- 🎨 SWEETALERT2: MENSAJES DE SESIÓN (SOLO VISUALIZACIÓN) -->
+    <!-- 🎨 SWEETALERT2: MENSAJES DE SESIÓN -->
     <?php if (isset($_SESSION['mensaje'])): ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -552,13 +574,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         if (display) display.textContent = '$' + total.toLocaleString('es-MX', { minimumFractionDigits: 2 });
     }
 
-    // ===== CAMBIO DE FORMULARIO/TABS =====
+    // ===== CAMBIO DE FORMULARIO/TABS (VERSIÓN LIMPIA) =====
     function showForm(type, btn) {
+        // Actualizar botones del selector
         document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        
+        // Ocultar todos los contenedores de formulario
         document.querySelectorAll('.form-container').forEach(c => c.classList.remove('active'));
-        document.getElementById(`form${type === 'gastos' ? 'Gastos' : 'Periodo'}`).classList.add('active');
+        
+        // Mostrar el formulario correspondiente
+        const targetId = `form${type === 'gastos' ? 'Gastos' : 'Periodo'}`;
+        const target = document.getElementById(targetId);
+        
+        if (target) {
+            // Forzar reflow para animación
+            target.offsetHeight;
+            target.classList.add('active');
+            
+            // Recalcular totales si es formulario de gastos
+            if (type === 'gastos' && typeof calcularTotal === 'function') {
+                calcularTotal('mantenedor');
+                calcularTotal('tecnico');
+            }
+        }
     }
+
     function switchForm(type, e) {
         e.preventDefault();
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -567,7 +608,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         document.getElementById(`form${type === 'mantenedor' ? 'Mantenedor' : 'Tecnico'}`).classList.add('active');
     }
 
-    // ===== CARGA DINÁMICA DE EMPLEADOS (SIN SweetAlert2 en el flujo crítico) =====
+    // ===== CARGA DINÁMICA DE EMPLEADOS =====
     async function cargarMantenedores(idLocalidad, tipo) {
         if (!idLocalidad) return;
         const suffix = tipo === 'mantenedor' ? 'Mant' : 'Tec';
@@ -578,7 +619,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         select.innerHTML = '<option>Cargando...</option>';
         
         try {
-            // Obtener id_zona desde la opción seleccionada
             const locSelect = document.getElementById(tipo === 'mantenedor' ? 'selectLocalidadMant' : 'selectLocalidadTec');
             const idZona = locSelect?.options[locSelect.selectedIndex]?.getAttribute('data-zona');
             
@@ -649,51 +689,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
     }
 
     function seleccionarPrimerTecnico() {
-    const tec = document.getElementById('selectTecnicoTec');
-    const mant = document.getElementById('selectMantenedorTec');
-    
-    // ✅ Solo preseleccionar si:
-    // 1. Existen ambos selects
-    // 2. El técnico tiene más de 1 opción (además del placeholder)
-    // 3. El mantenedor tiene un valor seleccionado
-    // 4. El técnico NO está deshabilitado
-    // 5. El técnico NO tiene un valor seleccionado manualmente
-    if (tec && mant && 
-        tec.options.length > 1 && 
-        mant.value && 
-        !tec.disabled &&
-        !tec.value) {
+        const tec = document.getElementById('selectTecnicoTec');
+        const mant = document.getElementById('selectMantenedorTec');
         
-        // Seleccionar el primer técnico disponible (índice 1, el 0 es el placeholder)
-        tec.value = tec.options[1].value;
-        
-        // ✅ Disparar evento change para que se actualice si hay dependencias
-        tec.dispatchEvent(new Event('change'));
-        
-        // Mostrar toast de confirmación
-        Toast.fire({ 
-            icon: 'info', 
-            title: '💡 Técnico sugerido seleccionado',
-            timer: 2000
-        });
-        
-        // Feedback visual
-        tec.style.borderColor = '#10b981';
-        tec.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.2)';
-        setTimeout(() => {
-            tec.style.borderColor = '';
-            tec.style.boxShadow = '';
-        }, 1500);
+        if (tec && mant && 
+            tec.options.length > 1 && 
+            mant.value && 
+            !tec.disabled &&
+            !tec.value) {
+            
+            tec.value = tec.options[1].value;
+            tec.dispatchEvent(new Event('change'));
+            Toast.fire({ icon: 'info', title: '💡 Técnico sugerido seleccionado', timer: 2000 });
+            
+            tec.style.borderColor = '#10b981';
+            tec.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.2)';
+            setTimeout(() => {
+                tec.style.borderColor = '';
+                tec.style.boxShadow = '';
+            }, 1500);
+        }
     }
-}
 
     // ===== INICIALIZACIÓN =====
     document.addEventListener('DOMContentLoaded', function() {
         calcularTotal('mantenedor');
         calcularTotal('tecnico');
         
-        // Eventos de cambio de localidad (YA DEFINIDOS en el HTML con onchange)
-        // Solo aseguramos que los selects iniciales estén limpios
         ['Mant', 'Tec'].forEach(suffix => {
             const s = document.getElementById(`selectMantenedor${suffix}`);
             if (s) { s.innerHTML = '<option value="">-- Seleccione --</option>'; s.disabled = true; }
