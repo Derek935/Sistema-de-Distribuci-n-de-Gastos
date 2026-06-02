@@ -153,6 +153,9 @@ $trabajadores = $pdo->query("
     ORDER BY tipo, nombre
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+// 🔍 Cargar rubros
+$rubros_lista = $pdo->query("SELECT id_rubro, nombre_rubro FROM rubro WHERE activo = 1 ORDER BY nombre_rubro ASC")->fetchAll(PDO::FETCH_ASSOC);
+
 // 🔍 BUSCAR GASTOS POR TRABAJADOR
 $gastos_trabajador = [];
 $trabajador_seleccionado = null;
@@ -381,12 +384,27 @@ $periodos_disponibles = $pdo->query("
     <?php if ($trabajador_seleccionado): ?>
         <div class="dashboard-results-container">
             <div class="dashboard-results-header">
-                <h3 class="dashboard-results-title">📋 Gastos de <?= htmlspecialchars($trabajador_seleccionado['nombre']) ?></h3>
-                <div class="dashboard-results-total">
-                    Total: $<?= number_format($total_gastos, 2) ?> (<?= count($gastos_trabajador) ?> gastos)
+                <div>
+                    <h3 class="dashboard-results-title">📋 Gastos de <?= htmlspecialchars($trabajador_seleccionado['nombre']) ?></h3>
                     <?php if ($id_periodo_filtro): ?>
-                        <br><small style="font-size:12px; opacity:0.9;">Filtro: Período #<?= $id_periodo_filtro ?></small>
+                        <small style="color: #64748b;">Filtro: Período #<?= $id_periodo_filtro ?></small>
                     <?php endif; ?>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="dashboard-results-total">
+                        Total: $<?= number_format($total_gastos, 2) ?> (<?= count($gastos_trabajador) ?> gastos)
+                    </div>
+                    <!-- ✅ BOTÓN DESCARGAR EXCEL DEL TRABAJADOR -->
+                    <form method="POST" action="exportar_trabajador_excel.php" target="_blank" style="display: inline;">
+                        <input type="hidden" name="trabajador_id" value="<?= $trabajador_id ?>">
+                        <input type="hidden" name="tipo_trabajador" value="<?= $tipo_trabajador ?>">
+                        <?php if ($id_periodo_filtro): ?>
+                            <input type="hidden" name="periodo" value="<?= $id_periodo_filtro ?>">
+                        <?php endif; ?>
+                        <button type="submit" class="dashboard-btn-export dashboard-btn-primary" style="padding: 8px 16px; font-size: 13px;">
+                            📥 Descargar Excel
+                        </button>
+                    </form>
                 </div>
             </div>
             
@@ -453,6 +471,8 @@ $periodos_disponibles = $pdo->query("
     <div class="dashboard-export-buttons">
         <button onclick="openModal('modalPeriodos')" class="dashboard-btn-export dashboard-btn-primary">📅 Exportar por Período</button>
         <button onclick="openModal('modalFechas')" class="dashboard-btn-export dashboard-btn-success">📆 Exportar por Fecha</button>
+        <button onclick="openModal('modalRubros')" class="dashboard-btn-export dashboard-btn-primary">📊 Exportar por Rubros</button>
+        <button onclick="openModal('modalTipoTrabajador')" class="dashboard-btn-export dashboard-btn-success">👥 Exportar por Tipo</button>
     </div>
 
 </div>
@@ -489,6 +509,57 @@ $periodos_disponibles = $pdo->query("
             <div class="form-group">
                 <label>Fecha Fin:</label>
                 <input type="date" name="fecha_fin" required class="form-control" value="<?= date('Y-m-d') ?>">
+            </div>
+            <button type="submit" name="exportar" class="btn dashboard-btn-success btn-block">📥 Descargar Excel</button>
+        </form>
+    </div>
+</div>
+
+<!-- ✅ NUEVO MODAL: EXPORTAR POR RUBROS -->
+<div id="modalRubros" class="dashboard-modal">
+    <div class="dashboard-modal-content">
+        <span class="dashboard-close" onclick="closeModal('modalRubros')">&times;</span>
+        <h2>📊 Exportar Gastos por Rubros</h2>
+        <form action="exportar_por_rubros.php" method="POST">
+            <div class="form-group">
+                <label>Seleccionar Rubros:</label>
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                    <?php foreach($rubros_lista as $rubro): ?>
+                        <label style="display: flex; align-items: center; gap: 8px; padding: 8px; margin-bottom: 4px; cursor: pointer; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                            <input type="checkbox" name="rubros[]" value="<?= $rubro['id_rubro'] ?>" style="width: 18px; height: 18px; cursor: pointer;">
+                            <span><?= htmlspecialchars($rubro['nombre_rubro']) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+                <small style="color: #64748b; display: block; margin-top: 8px;">💡 Deja todos desmarcados para exportar todos los rubros</small>
+            </div>
+            <button type="submit" name="exportar" class="btn dashboard-btn-primary btn-block">📥 Descargar Excel</button>
+        </form>
+    </div>
+</div>
+
+<!-- ✅ NUEVO MODAL: EXPORTAR POR TIPO DE TRABAJADOR -->
+<div id="modalTipoTrabajador" class="dashboard-modal">
+    <div class="dashboard-modal-content">
+        <span class="dashboard-close" onclick="closeModal('modalTipoTrabajador')">&times;</span>
+        <h2>👥 Exportar por Tipo de Trabajador</h2>
+        <form action="exportar_por_tipo_trabajador.php" method="POST">
+            <div class="form-group">
+                <label>Tipo de Trabajador:</label>
+                <select name="tipo_trabajador" class="form-control" required>
+                    <option value="">-- Seleccione --</option>
+                    <option value="todos_mantenedores">👷 Todos los Mantenedores</option>
+                    <option value="todos_tecnicos">🔧 Todos los Técnicos</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Filtrar por período (opcional):</label>
+                <select name="id_periodo" class="form-control">
+                    <option value="">-- Todos los períodos --</option>
+                    <?php foreach($periodos_disponibles as $p): ?>
+                        <option value="<?= $p['id_periodo'] ?>"><?= htmlspecialchars($p['periodo']) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <button type="submit" name="exportar" class="btn dashboard-btn-success btn-block">📥 Descargar Excel</button>
         </form>

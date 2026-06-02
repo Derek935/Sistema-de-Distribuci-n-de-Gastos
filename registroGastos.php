@@ -9,16 +9,6 @@ if (!isLoggedIn()) {
 require 'conexion/conexion.php';
 require_once 'includes/header.php';
 
-// Configuración de upload
-$uploadDir = 'uploads/comprobantes/';
-$maxFileSize = 5 * 1024 * 1024;
-$allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
-
-if (!file_exists($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
-}
-
 // ✅ Cargar datos iniciales
 $zonas = $pdo->query("SELECT id_zona, nombre_zona FROM zona WHERE estado = 1 ORDER BY nombre_zona ASC")->fetchAll(PDO::FETCH_ASSOC);
 $localidades = $pdo->query("SELECT id_localidad, nombre_localidad, id_zona FROM localidad WHERE estado = 1 ORDER BY nombre_localidad ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -84,21 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_mantenedor'])
         $rubros = $_POST['rubro'] ?? [];
         $montos = $_POST['monto_gasto'] ?? [];
         $observaciones = $_POST['observaciones'] ?? [];
-        
-        $ruta_comprobante = null;
-        if (isset($_FILES['comprobante']) && $_FILES['comprobante']['error'] === UPLOAD_ERR_OK) {
-            $archivo = $_FILES['comprobante'];
-            if ($archivo['size'] > $maxFileSize) throw new Exception('El archivo excede 5MB');
-            $finfo = new finfo(FILEINFO_MIME_TYPE);
-            $mimeType = $finfo->file($archivo['tmp_name']);
-            if (!in_array($mimeType, $allowedTypes)) throw new Exception('Tipo de archivo no permitido');
-            $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
-            if (!in_array($extension, $allowedExtensions)) throw new Exception('Extensión no permitida');
-            $nombreUnico = uniqid('comp_') . '_' . time() . '.' . $extension;
-            $rutaDestino = $uploadDir . $nombreUnico;
-            if (!move_uploaded_file($archivo['tmp_name'], $rutaDestino)) throw new Exception('Error al guardar');
-            $ruta_comprobante = $rutaDestino;
-        }
 
         if (empty($fecha_gasto)) throw new Exception('La fecha es obligatoria');
         if (!$id_mantenedor) throw new Exception('Debe seleccionar un mantenedor');
@@ -118,11 +93,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_mantenedor'])
         if (empty($items_validos)) throw new Exception('Debe agregar al menos un rubro válido');
 
         $pdo->beginTransaction();
-        $stmt = $pdo->prepare("INSERT INTO gasto (fecha_gasto, monto, descripcion, id_mantenedor, id_tecnico, id_rubro, id_periodo, id_programa, id_localidad, comprobante, fecha_registro, estado) VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, NOW(), 1)");
+        // ✅ Se pasa NULL explícitamente en la columna comprobante
+        $stmt = $pdo->prepare("INSERT INTO gasto (fecha_gasto, monto, descripcion, id_mantenedor, id_tecnico, id_rubro, id_periodo, id_programa, id_localidad, comprobante, fecha_registro, estado) VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, NULL, NOW(), 1)");
         
         $ids_gastos = [];
         foreach ($items_validos as $item) {
-            $stmt->execute([$fecha_gasto, $item['monto'], $item['observaciones'], $id_mantenedor, $item['id_rubro'], $id_periodo, $id_programa, $id_localidad, $ruta_comprobante]);
+            $stmt->execute([$fecha_gasto, $item['monto'], $item['observaciones'], $id_mantenedor, $item['id_rubro'], $id_periodo, $id_programa, $id_localidad]);
             $ids_gastos[] = $pdo->lastInsertId();
         }
         $pdo->commit();
@@ -160,21 +136,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         $rubros = $_POST['rubro'] ?? [];
         $montos = $_POST['monto_gasto'] ?? [];
         $observaciones = $_POST['observaciones'] ?? [];
-        
-        $ruta_comprobante = null;
-        if (isset($_FILES['comprobante']) && $_FILES['comprobante']['error'] === UPLOAD_ERR_OK) {
-            $archivo = $_FILES['comprobante'];
-            if ($archivo['size'] > $maxFileSize) throw new Exception('El archivo excede 5MB');
-            $finfo = new finfo(FILEINFO_MIME_TYPE);
-            $mimeType = $finfo->file($archivo['tmp_name']);
-            if (!in_array($mimeType, $allowedTypes)) throw new Exception('Tipo de archivo no permitido');
-            $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
-            if (!in_array($extension, $allowedExtensions)) throw new Exception('Extensión no permitida');
-            $nombreUnico = uniqid('comp_') . '_' . time() . '.' . $extension;
-            $rutaDestino = $uploadDir . $nombreUnico;
-            if (!move_uploaded_file($archivo['tmp_name'], $rutaDestino)) throw new Exception('Error al guardar');
-            $ruta_comprobante = $rutaDestino;
-        }
 
         if (empty($fecha_gasto)) throw new Exception('La fecha es obligatoria');
         if (!$id_tecnico) throw new Exception('Debe seleccionar un técnico');
@@ -194,11 +155,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         if (empty($items_validos)) throw new Exception('Debe agregar al menos un rubro válido');
 
         $pdo->beginTransaction();
-        $stmt = $pdo->prepare("INSERT INTO gasto (fecha_gasto, monto, descripcion, id_mantenedor, id_tecnico, id_rubro, id_periodo, id_programa, id_localidad, comprobante, fecha_registro, estado) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, NOW(), 1)");
+        // ✅ Se pasa NULL explícitamente en la columna comprobante
+        $stmt = $pdo->prepare("INSERT INTO gasto (fecha_gasto, monto, descripcion, id_mantenedor, id_tecnico, id_rubro, id_periodo, id_programa, id_localidad, comprobante, fecha_registro, estado) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, NULL, NOW(), 1)");
         
         $ids_gastos = [];
         foreach ($items_validos as $item) {
-            $stmt->execute([$fecha_gasto, $item['monto'], $item['observaciones'], $id_tecnico, $item['id_rubro'], $id_periodo, $id_programa, $id_localidad, $ruta_comprobante]);
+            $stmt->execute([$fecha_gasto, $item['monto'], $item['observaciones'], $id_tecnico, $item['id_rubro'], $id_periodo, $id_programa, $id_localidad]);
             $ids_gastos[] = $pdo->lastInsertId();
         }
         $pdo->commit();
@@ -239,7 +201,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         .swal2-popup { font-family: 'Outfit', sans-serif !important; border-radius: 16px !important; }
         .swal2-confirm { border-radius: 8px !important; font-weight: 600 !important; }
         
-        /* ✅ CSS CRÍTICO PARA MOSTRAR/OCULTAR FORMULARIOS */
         .form-container {
             display: none !important;
             animation: fadeIn 0.3s ease;
@@ -273,7 +234,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
 
             <!-- FORMULARIO MANTENEDOR -->
             <div id="formMantenedor" class="form-section active">
-                <form method="POST" action="" enctype="multipart/form-data">
+                <!-- ✅ Se eliminó enctype="multipart/form-data" -->
+                <form method="POST" action="">
                     <input type="hidden" name="tipo_empleado" value="mantenedor">
                     
                     <div class="form-group" style="margin-bottom: 15px;">
@@ -352,10 +314,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
                         <span id="totalDisplayMant">$0.00</span>
                     </div>
 
-                    <div class="form-group">
-                        <label>📎 Comprobante (opcional)</label>
-                        <input type="file" name="comprobante" accept="image/*,application/pdf" onchange="previewFile(this)" class="registro-select">
-                    </div>
+                    <!-- ✅ Se eliminó el campo de Comprobante -->
 
                     <button type="submit" name="btngasto_mantenedor" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 16px;">
                         💾 Registrar Gastos de Mantenedor
@@ -365,7 +324,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
 
             <!-- FORMULARIO TÉCNICO -->
             <div id="formTecnico" class="form-section">
-                <form method="POST" action="" enctype="multipart/form-data">
+                <!-- ✅ Se eliminó enctype="multipart/form-data" -->
+                <form method="POST" action="">
                     <input type="hidden" name="tipo_empleado" value="tecnico">
                     
                     <div class="form-group" style="margin-bottom: 15px;">
@@ -453,10 +413,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
                         <span id="totalDisplayTec">$0.00</span>
                     </div>
 
-                    <div class="form-group">
-                        <label>📎 Comprobante (opcional)</label>
-                        <input type="file" name="comprobante" accept="image/*,application/pdf" onchange="previewFile(this)" class="registro-select">
-                    </div>
+                    <!-- ✅ Se eliminó el campo de Comprobante -->
 
                     <button type="submit" name="btngasto_tecnico" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 16px;">
                         💾 Registrar Gastos de Técnico
@@ -466,7 +423,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         </div>
     </div>
 
-    <!-- 🔹 FORMULARIO: PERIODO DE MANTENIMIENTO (CORREGIDO) -->
+    <!-- 🔹 FORMULARIO: PERIODO DE MANTENIMIENTO -->
     <div id="formPeriodo" class="form-container">
         <div class="form-card">
             <h2 style="margin-bottom: 20px; color: #1e293b; font-size: 20px; font-weight: 700;">
@@ -521,28 +478,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
     </script>
     <?php unset($_SESSION['mensaje'], $_SESSION['tipo_mensaje']); endif; ?>
 
-    <!-- ✅ JAVASCRIPT MINIMALISTA Y FUNCIONAL -->
+    <!-- ✅ JAVASCRIPT MINIMALISTA Y FUNCIONAL (Sin funciones de archivo) -->
     <script>
-    // ===== UTILIDADES =====
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, timerProgressBar: true });
-
-    function previewFile(input) {
-        const file = input.files[0];
-        if (!file) return;
-        if (!['image/jpeg','image/png','image/gif','application/pdf'].includes(file.type)) {
-            Swal.fire({ icon: 'error', title: '❌ Tipo no permitido', text: 'Solo JPG, PNG, GIF o PDF', confirmButtonColor: '#ef4444' });
-            input.value = '';
-            return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-            Swal.fire({ icon: 'error', title: '❌ Muy grande', text: 'Máximo 5MB', confirmButtonColor: '#ef4444' });
-            input.value = '';
-            return;
-        }
-        Toast.fire({ icon: 'success', title: '📎 Archivo listo' });
-    }
-
-    function formatFileSize(b) { if (!b) return '0 Bytes'; const k=1024, s=['Bytes','KB','MB','GB'], i=Math.floor(Math.log(b)/Math.log(k)); return (b/Math.pow(k,i)).toFixed(2)+' '+s[i]; }
 
     // ===== RUBROS DINÁMICOS =====
     const counters = { mantenedor: 1, tecnico: 1 };
@@ -574,25 +512,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         if (display) display.textContent = '$' + total.toLocaleString('es-MX', { minimumFractionDigits: 2 });
     }
 
-    // ===== CAMBIO DE FORMULARIO/TABS (VERSIÓN LIMPIA) =====
+    // ===== CAMBIO DE FORMULARIO/TABS =====
     function showForm(type, btn) {
-        // Actualizar botones del selector
         document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
-        // Ocultar todos los contenedores de formulario
         document.querySelectorAll('.form-container').forEach(c => c.classList.remove('active'));
         
-        // Mostrar el formulario correspondiente
         const targetId = `form${type === 'gastos' ? 'Gastos' : 'Periodo'}`;
         const target = document.getElementById(targetId);
         
         if (target) {
-            // Forzar reflow para animación
-            target.offsetHeight;
+            target.offsetHeight; // Forzar reflow
             target.classList.add('active');
             
-            // Recalcular totales si es formulario de gastos
             if (type === 'gastos' && typeof calcularTotal === 'function') {
                 calcularTotal('mantenedor');
                 calcularTotal('tecnico');
@@ -692,12 +624,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         const tec = document.getElementById('selectTecnicoTec');
         const mant = document.getElementById('selectMantenedorTec');
         
-        if (tec && mant && 
-            tec.options.length > 1 && 
-            mant.value && 
-            !tec.disabled &&
-            !tec.value) {
-            
+        if (tec && mant && tec.options.length > 1 && mant.value && !tec.disabled && !tec.value) {
             tec.value = tec.options[1].value;
             tec.dispatchEvent(new Event('change'));
             Toast.fire({ icon: 'info', title: '💡 Técnico sugerido seleccionado', timer: 2000 });

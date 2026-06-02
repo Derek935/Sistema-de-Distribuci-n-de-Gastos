@@ -39,7 +39,7 @@ LEFT JOIN rubro r ON g.id_rubro = r.id_rubro
 LEFT JOIN mantenedor m ON g.id_mantenedor = m.id_mantenedor
 LEFT JOIN tecnico t ON g.id_tecnico = t.id_tecnico
 LEFT JOIN periodo pe ON g.id_periodo = pe.id_periodo
-LEFT JOIN localidad l ON pe.id_localidad = l.id_localidad
+LEFT JOIN localidad l ON g.id_localidad = l.id_localidad
 WHERE g.estado = 1 
 AND DATE(g.fecha_registro) BETWEEN ? AND ?
 ORDER BY g.fecha_registro DESC";

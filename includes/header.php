@@ -64,6 +64,16 @@ $menuItems = getMenuItems();
                     </a>
                 <?php endforeach; ?>
                 
+                <!-- ✅ NUEVA VISTA: SUBIR COMPROBANTE -->
+                <?php 
+                $isSubirComprobante = (strpos($_SERVER['REQUEST_URI'], 'panel.php') !== false);
+                $classSubir = $isSubirComprobante ? 'active' : '';
+                ?>
+                <a href="<?php echo htmlspecialchars($basePath . '/panel.php'); ?>" 
+                   class="nav-item <?php echo $classSubir; ?>">
+                    📤 Subir Comprobante
+                </a>
+                
                 <a href="<?php echo $basePath; ?>/logout.php" class="btn-logout">Salir</a>
             <?php else: ?>
                 <a href="<?php echo $basePath; ?>/index.php" class="nav-item">Iniciar Sesión</a>

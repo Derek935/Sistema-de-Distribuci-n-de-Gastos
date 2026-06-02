@@ -1,24 +1,24 @@
 <?php
-session_start();
-require 'conexion/conexion.php';
-require 'vendor/autoload.php';
 // exportar_periodos.php
 require_once 'config/auth.php';
 
 // ✅ PROTEGER: Solo admin
 requireAdmin();
 
-// Tu código existente de exportación...
+require 'conexion/conexion.php';
+require 'vendor/autoload.php';
+
 use Shuchkin\SimpleXLSXGen;
 
-if (!isset($_SESSION['user_id']) || !isset($_POST['exportar'])) {
+if (!isset($_POST['exportar'])) {
     header("Location: dashboard.php");
     exit();
 }
 
 $id_periodo = $_POST['id_periodo'] ?? '';
 
-// ===== CONSULTA =====
+// ===== CONSULTA CORREGIDA =====
+// ✅ CORRECCIÓN: Cambiar 'pe.id_localidad' por 'g.id_localidad'
 $sql = "SELECT 
     g.id_gasto,
     g.fecha_gasto,
@@ -37,7 +37,7 @@ LEFT JOIN rubro r ON g.id_rubro = r.id_rubro
 LEFT JOIN mantenedor m ON g.id_mantenedor = m.id_mantenedor
 LEFT JOIN tecnico t ON g.id_tecnico = t.id_tecnico
 LEFT JOIN periodo pe ON g.id_periodo = pe.id_periodo
-LEFT JOIN localidad l ON pe.id_localidad = l.id_localidad
+LEFT JOIN localidad l ON g.id_localidad = l.id_localidad  -- ✅ AQUÍ ESTABA EL ERROR
 WHERE g.estado = 1";
 
 $params = [];
@@ -82,23 +82,28 @@ $filas[] = ['', '', '', '', '', '', '', '', '', '', ''];
 $filas[] = ['TOTAL GENERAL:', '', $total, '', '', '', '', '', '', '', ''];
 
 // ===== CREAR EXCEL =====
-$xls = new SimpleXLSXGen();
+try {
+    $xls = new SimpleXLSXGen();
 
-// Hoja 1: Gastos por Período
-$xls->addSheet($filas);
+    // Hoja 1: Gastos por Período
+    $xls->addSheet($filas);
 
-// Hoja 2: Resumen
-$resumen = [
-    ['Concepto', 'Valor'],
-    ['Total de Registros', count($gastos)],
-    ['Monto Total', $total],
-    ['Fecha de Exportación', date('d/m/Y H:i:s')],
-    ['Período Filtrado', !empty($id_periodo) ? 'Sí' : 'Todos']
-];
-$xls->addSheet($resumen);
+    // Hoja 2: Resumen
+    $resumen = [
+        ['Concepto', 'Valor'],
+        ['Total de Registros', count($gastos)],
+        ['Monto Total', $total],
+        ['Fecha de Exportación', date('d/m/Y H:i:s')],
+        ['Período Filtrado', !empty($id_periodo) ? 'Sí' : 'Todos']
+    ];
+    $xls->addSheet($resumen);
 
-// Descargar
-$filename = 'Gastos_Periodo_' . date('Y-m-d_His') . '.xlsx';
-$xls->downloadAs($filename);
-exit();
+    // Descargar
+    $filename = 'Gastos_Periodo_' . date('Y-m-d_His') . '.xlsx';
+    $xls->downloadAs($filename);
+    exit();
+    
+} catch (Exception $e) {
+    die("❌ Error al generar Excel: " . $e->getMessage());
+}
 ?>
