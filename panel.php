@@ -10,6 +10,20 @@ if (!isLoggedIn()) {
 
 require 'conexion/conexion.php';
 
+// ============================================
+// ✅ CONFIGURACIÓN DE UPLOAD (NUEVO)
+// ============================================
+$uploadDir = 'uploads/comprobantes/';
+$maxFileSize = 5 * 1024 * 1024; // 5MB
+$allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
+
+// Crear carpeta si no existe
+if (!file_exists($uploadDir)) {
+    mkdir($uploadDir, 0755, true);
+}
+// ============================================
+
 // ======================================================================
 // 🚀 BLOQUE AJAX: DEBE IR JUSTO DESPUÉS DE LOS REQUIRES, ANTES DEL HTML
 // ======================================================================
@@ -110,17 +124,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnSubirComprobante'])
             
             // 🔍 DEBUG: Ver exactamente qué valores se están comparando
             $tamanoArchivo = intval($archivo['size']); // Asegurar que sea integer
-            $limiteMaximo = 5 * 1024 * 1024; // 5MB en bytes = 5,242,880
             
             error_log("=== DEBUG UPLOAD ===");
             error_log("Tamaño archivo: $tamanoArchivo bytes (" . ($tamanoArchivo/1024) . " KB)");
-            error_log("Límite máximo: $limiteMaximo bytes (" . ($limiteMaximo/1024/1024) . " MB)");
-            error_log("¿Excede el límite? " . ($tamanoArchivo > $limiteMaximo ? 'SÍ' : 'NO'));
+            error_log("Límite máximo: $maxFileSize bytes (" . ($maxFileSize/1024/1024) . " MB)");
+            error_log("¿Excede el límite? " . ($tamanoArchivo > $maxFileSize ? 'SÍ' : 'NO'));
             
             // ✅ Validar tamaño (comparación correcta)
-            if ($tamanoArchivo > $limiteMaximo) {
+            if ($tamanoArchivo > $maxFileSize) {
                 $tamanoKB = round($tamanoArchivo / 1024, 2);
-                $limiteMB = round($limiteMaximo / 1024 / 1024, 2);
+                $limiteMB = round($maxFileSize / 1024 / 1024, 2);
                 throw new Exception("El archivo pesa {$tamanoKB} KB y excede el límite de {$limiteMB} MB.");
             }
             
@@ -128,15 +141,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnSubirComprobante'])
             $finfo = new finfo(FILEINFO_MIME_TYPE);
             $mimeType = $finfo->file($archivo['tmp_name']);
             
-            $tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-            if (!in_array($mimeType, $tiposPermitidos)) {
+            if (!in_array($mimeType, $allowedTypes)) {
                 throw new Exception("Tipo de archivo no permitido. Se detectó: $mimeType. Solo se permiten: JPG, PNG, GIF o PDF.");
             }
             
             // ✅ Validar extensión
             $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
-            $extensionesPermitidas = ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
-            if (!in_array($extension, $extensionesPermitidas)) {
+            if (!in_array($extension, $allowedExtensions)) {
                 throw new Exception("Extensión no permitida: .$extension. Solo se permiten: jpg, jpeg, png, gif, pdf.");
             }
             
@@ -218,7 +229,21 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
         .file-input-label:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
         .file-info { margin-top: 16px; padding: 16px; background: white; border-radius: 8px; border: 1px solid #e5e7eb; display: none; text-align: left; }
         .file-info.show { display: block; }
-        .preview-image { max-width: 200px; max-height: 200px; border-radius: 8px; margin: 12px 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        
+        /* ✅ IMAGEN DE VISTA PREVIA - TAMAÑO LIMITADO */
+        .preview-image { 
+            max-width: 150px !important; 
+            max-height: 150px !important;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px; 
+            margin: 12px 0; 
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e5e7eb;
+            display: block;
+        }
+        
         .rubro-list { margin-top: 20px; }
         .rubro-item { padding: 12px 16px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #667eea; }
         .rubro-item .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
@@ -530,7 +555,8 @@ function previewFile(input) {
         fileIcon.textContent = '🖼️';
         const reader = new FileReader();
         reader.onload = e => {
-            imagePreview.innerHTML = `<img src="${e.target.result}" alt="Vista previa" class="preview-image">`;
+            // ✅ IMAGEN CON TAMAÑO LIMITADO (150x150px máx)
+            imagePreview.innerHTML = `<img src="${e.target.result}" alt="Vista previa" class="preview-image" style="max-width: 150px; max-height: 150px;">`;
         };
         reader.readAsDataURL(file);
     } else if (file.type === 'application/pdf') {
@@ -538,6 +564,7 @@ function previewFile(input) {
         imagePreview.innerHTML = '<div style="font-size: 48px; text-align: center; margin: 12px 0;">📄</div><div style="text-align: center; color: #64748b; font-size: 12px;">Documento PDF</div>';
     }
 }
+
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];

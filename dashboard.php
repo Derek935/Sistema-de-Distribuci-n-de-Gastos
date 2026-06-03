@@ -175,33 +175,34 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
         $trabajador_seleccionado = $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    if ($trabajador_seleccionado) {
-        $sql = "
-            SELECT 
-                g.id_gasto, g.fecha_gasto, g.monto, g.descripcion, g.comprobante, g.fecha_registro,
-                r.nombre_rubro, p.programa,
-                CONCAT('Entre ', DATE_FORMAT(per.fecha_inicio, '%d/%m/%Y'), ' y ', DATE_FORMAT(per.fecha_fin, '%d/%m/%Y')) as periodo
-            FROM gasto g
-            LEFT JOIN rubro r ON g.id_rubro = r.id_rubro
-            LEFT JOIN programa p ON g.id_programa = p.id_programa
-            LEFT JOIN periodo per ON g.id_periodo = per.id_periodo
-            WHERE g.estado = 1 AND ";
-        
-        $sql .= ($tipo_trabajador === 'tecnico') ? "g.id_tecnico = ?" : "g.id_mantenedor = ?";
-        $params_buscar = [$trabajador_id];
-        
-        if ($id_periodo_filtro) {
-            $sql .= " AND g.id_periodo = ?";
-            $params_buscar[] = $id_periodo_filtro;
-        }
-        
-        $sql .= " ORDER BY g.fecha_gasto DESC";
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params_buscar);
-        $gastos_trabajador = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $total_gastos = array_sum(array_column($gastos_trabajador, 'monto'));
+   if ($trabajador_seleccionado) {
+    // ✅ CAMBIO: Incluir estado 1 Y 2, y traer el campo estado
+    $sql = "
+        SELECT 
+            g.id_gasto, g.fecha_gasto, g.monto, g.descripcion, g.comprobante, g.fecha_registro, g.estado,
+            r.nombre_rubro, p.programa,
+            CONCAT('Entre ', DATE_FORMAT(per.fecha_inicio, '%d/%m/%Y'), ' y ', DATE_FORMAT(per.fecha_fin, '%d/%m/%Y')) as periodo
+        FROM gasto g
+        LEFT JOIN rubro r ON g.id_rubro = r.id_rubro
+        LEFT JOIN programa p ON g.id_programa = p.id_programa
+        LEFT JOIN periodo per ON g.id_periodo = per.id_periodo
+        WHERE g.estado IN (1, 2) AND ";
+    
+    $sql .= ($tipo_trabajador === 'tecnico') ? "g.id_tecnico = ?" : "g.id_mantenedor = ?";
+    $params_buscar = [$trabajador_id];
+    
+    if ($id_periodo_filtro) {
+        $sql .= " AND g.id_periodo = ?";
+        $params_buscar[] = $id_periodo_filtro;
     }
+    
+    $sql .= " ORDER BY g.fecha_gasto DESC";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params_buscar);
+    $gastos_trabajador = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $total_gastos = array_sum(array_column($gastos_trabajador, 'monto'));
+}
 }
 
 // 🔍 Cargar períodos
@@ -424,6 +425,14 @@ $periodos_disponibles = $pdo->query("
                                     <div style="font-size:12px; color:#9ca3af; margin-top:4px;">
                                         Registrado: <?= date('d/m/Y H:i', strtotime($gasto['fecha_registro'])) ?>
                                     </div>
+                                    <!-- ✅ NUEVO: Badge de estado -->
+                                    <div style="margin-top: 6px;">
+                                        <?php if ($gasto['estado'] == 1): ?>
+                                            <span class="badge-estado badge-pendiente">⏳ Pendiente</span>
+                                        <?php else: ?>
+                                            <span class="badge-estado badge-finalizado">✅ Finalizado</span>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                                 <div class="dashboard-gasto-monto">$<?= number_format($gasto['monto'], 2) ?></div>
                             </div>
@@ -452,7 +461,12 @@ $periodos_disponibles = $pdo->query("
                                     $ext = strtolower(pathinfo($gasto['comprobante'], PATHINFO_EXTENSION));
                                     if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): 
                                     ?>
-                                        <img src="<?= htmlspecialchars($gasto['comprobante']) ?>" alt="Comprobante" class="dashboard-comprobante-img" onclick="window.open(this.src, '_blank')">
+                                        <!-- ✅ IMAGEN CON TAMAÑO LIMITADO -->
+                                        <img src="<?= htmlspecialchars($gasto['comprobante']) ?>" 
+                                            alt="Comprobante" 
+                                            class="dashboard-comprobante-img" 
+                                            onclick="window.open(this.src, '_blank')"
+                                            title="Clic para ver en tamaño completo">
                                     <?php elseif ($ext === 'pdf'): ?>
                                         <a href="<?= htmlspecialchars($gasto['comprobante']) ?>" target="_blank" class="dashboard-comprobante-pdf">📄 Ver PDF</a>
                                     <?php endif; ?>
