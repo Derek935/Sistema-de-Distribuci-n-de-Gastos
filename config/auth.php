@@ -66,7 +66,7 @@ function canAccess($vista) {
         return true;
     }
     
-    // Usuarios (rol 2) solo pueden ver registroGastos
+    // Usuarios (rol 2) solo pueden ver estas vistas
     $vistasPermitidas = ['registroGastos.php', 'index.php', 'logout.php'];
     return in_array($vista, $vistasPermitidas);
 }
@@ -82,10 +82,20 @@ function getMenuItems() {
     
     // Para todos los usuarios
     $menu[] = [
-        'label' => ' Registro de Gastos',
+        'label' => '📝 Registro de Gastos',
         'url' => 'registroGastos.php',
         'roles' => [1, 2]
     ];
+    
+    // ✅ NUEVO: Panel de Control - Solo para Admin (rol 1)
+    if ($user['id_rol'] === 1) {
+        $menu[] = [
+            'label' => '📤 Subir Comprobante',
+            'url' => 'panel.php',
+            'roles' => [1],
+            'class' => 'admin-only'
+        ];
+    }
     
     // Solo para Admin
     if ($user['id_rol'] === 1) {
@@ -95,7 +105,6 @@ function getMenuItems() {
             'roles' => [1],
             'class' => 'admin-only'
         ];
-        
     }
     
     return $menu;
@@ -109,8 +118,8 @@ function getRoleBadge() {
     if (!$user) return '';
     
     if ($user['id_rol'] === 1) {
-        return '<span class="role-badge admin"> Admin</span>';
+        return '<span class="role-badge admin">👑 Admin</span>';
     }
-    return '<span class="role-badge user"> Usuario</span>';
+    return '<span class="role-badge user">👤 Usuario</span>';
 }
 ?>

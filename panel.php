@@ -2,6 +2,10 @@
 // subir_comprobante.php
 require_once 'config/auth.php';
 
+// ✅ PROTEGER: Solo admin puede acceder
+requireAdmin();
+
+
 // ✅ Proteger vista
 if (!isLoggedIn()) {
     header("Location: /index.php");
@@ -390,8 +394,10 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
             <div class="rubro-list">
                 <?php foreach($rubros as $rubro): ?>
                     <div class="rubro-item">
-                        <div>
-                            <strong style="color: #1e293b;">ID: <?php echo $rubro['id_rubro']; ?> - <?php echo htmlspecialchars($rubro['nombre_rubro']); ?></strong>
+                        <div class="rubro-content">
+                            <strong style="color: #1e293b; font-size: 15px;">
+                                ID: <?php echo $rubro['id_rubro']; ?> - <?php echo htmlspecialchars($rubro['nombre_rubro']); ?>
+                            </strong>
                             <?php if ($rubro['descripcion']): ?>
                                 <br><small style="color: #64748b;"><?php echo htmlspecialchars($rubro['descripcion']); ?></small>
                             <?php endif; ?>

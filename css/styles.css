@@ -1481,16 +1481,33 @@ table tr:hover {
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
-    .rubro-item {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 15px;
-        background: #f8fafc;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        border: 1px solid #e2e8f0;
-    }
+.rubro-item { 
+    padding: 16px 20px; 
+    background: #f8fafc; 
+    border-radius: 8px; 
+    margin-bottom: 8px; 
+    display: flex; 
+    flex-direction: column;  /* ✅ Cambiar a columna para centrar verticalmente */
+    justify-content: center; 
+    align-items: center;     /* ✅ Centrar horizontalmente */
+    text-align: center;      /* ✅ Centrar el texto */
+    border-left: 4px solid #667eea;
+    transition: all 0.2s ease;
+}
+.rubro-item:hover {
+    background: #f1f5f9;
+    transform: translateX(4px);
+}
+.rubro-item .rubro-content {
+    width: 100%;
+    margin-bottom: 8px;
+}
+.rubro-item .badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
     .rubro-item select,
     .rubro-item input[type="number"] {
         margin-bottom: 0;

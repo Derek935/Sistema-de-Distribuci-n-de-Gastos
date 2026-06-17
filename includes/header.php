@@ -50,7 +50,7 @@ $menuItems = getMenuItems();
             <?php if($user) echo getRoleBadge(); ?>
         </div>
         
-        <nav class="navbar">
+       <nav class="navbar">
             <?php if($user): ?>
                 <?php foreach($menuItems as $item): ?>
                     <?php 
@@ -59,20 +59,10 @@ $menuItems = getMenuItems();
                     if (isset($item['class'])) $class .= ' ' . $item['class'];
                     ?>
                     <a href="<?php echo htmlspecialchars($basePath . '/' . $item['url']); ?>" 
-                       class="nav-item <?php echo trim($class); ?>">
+                    class="nav-item <?php echo trim($class); ?>">
                         <?php echo htmlspecialchars($item['label']); ?>
                     </a>
                 <?php endforeach; ?>
-                
-                <!-- ✅ NUEVA VISTA: SUBIR COMPROBANTE -->
-                <?php 
-                $isSubirComprobante = (strpos($_SERVER['REQUEST_URI'], 'panel.php') !== false);
-                $classSubir = $isSubirComprobante ? 'active' : '';
-                ?>
-                <a href="<?php echo htmlspecialchars($basePath . '/panel.php'); ?>" 
-                   class="nav-item <?php echo $classSubir; ?>">
-                    📤 Subir Comprobante
-                </a>
                 
                 <a href="<?php echo $basePath; ?>/logout.php" class="btn-logout">Salir</a>
             <?php else: ?>
