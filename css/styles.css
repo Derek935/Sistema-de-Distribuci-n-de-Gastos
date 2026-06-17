@@ -1529,3 +1529,40 @@ table tr:hover {
         color: #1e293b;
         font-weight: 600;
     }
+    /* ============================================
+   FIX PARA GRÁFICAS RESPONSIVAS
+   ============================================ */
+
+.dashboard-chart-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.dashboard-chart-container > div {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.apexcharts-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.apexcharts-canvas svg {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.dashboard-chart-card {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.dashboard-charts-grid {
+    width: 100%;
+    box-sizing: border-box;
+}

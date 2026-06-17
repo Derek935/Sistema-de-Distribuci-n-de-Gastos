@@ -585,19 +585,78 @@ $periodos_disponibles = $pdo->query("
 document.addEventListener('DOMContentLoaded', function() {
     const colors = { blue:'#3498db', green:'#2ecc71', orange:'#e67e22', purple:'#9b59b6', red:'#e74c3c' };
 
+    // ============================================
+    // 📦 ALMACENAR INSTANCIAS DE GRÁFICAS
+    // ============================================
+    const charts = {};
+
     function crearGraficaApex(elementId, options) {
         const el = document.querySelector("#" + elementId);
         if (!el || typeof ApexCharts === 'undefined') return null;
         try {
             const chart = new ApexCharts(el, options);
             chart.render();
+            charts[elementId] = chart; // ✅ Guardar referencia
             return chart;
-        } catch(e) { console.error(`❌ Error en #${elementId}:`, e.message); return null; }
+        } catch(e) { 
+            console.error(`❌ Error en #${elementId}:`, e.message); 
+            return null; 
+        }
     }
+
+    // ============================================
+    // 🔄 FUNCIÓN PARA REDIMENSIONAR TODAS LAS GRÁFICAS
+    // ============================================
+    function redimensionarGraficas() {
+        for (let id in charts) {
+            if (charts[id]) {
+                // ✅ Usar el método resize() nativo de ApexCharts
+                charts[id].resize();
+            }
+        }
+    }
+
+    // ============================================
+    // 📐 EVENTO RESIZE CON DEBOUNCE
+    // ============================================
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            redimensionarGraficas();
+        }, 200);
+    });
+
+    // ============================================
+    //  RESIZEOBSERVER PARA EL CONTENEDOR
+    // ============================================
+    if (typeof ResizeObserver !== 'undefined') {
+        const containerObserver = new ResizeObserver(entries => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                redimensionarGraficas();
+            }, 200);
+        });
+        
+        const container = document.querySelector('.dashboard-container');
+        if (container) {
+            containerObserver.observe(container);
+        }
+    }
+
+    // ============================================
+    // 📊 CREAR GRÁFICAS
+    // ============================================
 
     // 1. GRÁFICA DE PERÍODOS
     crearGraficaApex('chartPeriodo', {
-        chart: { type: 'bar', height: 350, toolbar: { show: false } },
+        chart: { 
+            type: 'bar', 
+            height: 350, 
+            toolbar: { show: false },
+            animations: { enabled: true },
+            parentHeightOffset: 0
+        },
         plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: '70%' } },
         series: [{ name: 'Total Gastado', data: <?= json_encode($data_periodo ?: [0], JSON_NUMERIC_CHECK) ?> }],
         xaxis: {
@@ -605,12 +664,19 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: { formatter: v => '$' + parseFloat(v||0).toLocaleString() }
         },
         colors: [colors.blue],
-        legend: { show: false }
+        legend: { show: false },
+        responsive: [{
+            breakpoint: 768,
+            options: {
+                chart: { height: 300 },
+                plotOptions: { bar: { horizontal: false } }
+            }
+        }]
     });
 
     // 2. GRÁFICA DE RUBROS
     crearGraficaApex('chartRubro', {
-        chart: { type: 'donut', height: 350 },
+        chart: { type: 'donut', height: 350, animations: { enabled: true } },
         series: <?= json_encode($data_rubro ?: [0], JSON_NUMERIC_CHECK) ?>,
         labels: <?= json_encode($labels_rubro) ?>,
         colors: [colors.blue, colors.green, colors.orange, colors.purple, colors.red],
@@ -630,12 +696,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         dataLabels: { enabled: false },
-        tooltip: { y: { formatter: v => '$' + (v||0).toLocaleString() } }
+        tooltip: { y: { formatter: v => '$' + (v||0).toLocaleString() } },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: { height: 300 },
+                legend: { position: 'bottom' }
+            }
+        }]
     });
 
     // 3. GRÁFICA DE PROGRAMAS
     crearGraficaApex('chartPrograma', {
-        chart: { type: 'radialBar', height: 350 },
+        chart: { type: 'radialBar', height: 350, animations: { enabled: true } },
         series: <?= json_encode($data_programa ?: [0], JSON_NUMERIC_CHECK) ?>,
         labels: <?= json_encode($labels_programa) ?>,
         colors: [colors.blue, colors.green, colors.orange, colors.purple, colors.red],
@@ -651,12 +724,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         },
-        stroke: { lineCap: 'round' }
+        stroke: { lineCap: 'round' },
+        responsive: [{
+            breakpoint: 768,
+            options: { chart: { height: 300 } }
+        }]
     });
 
     // 4. GRÁFICA DE EVOLUCIÓN MENSUAL
     crearGraficaApex('chartMensual', {
-        chart: { type: 'area', height: 350, toolbar: { show: false }, zoom: { enabled: true } },
+        chart: { 
+            type: 'area', 
+            height: 350, 
+            toolbar: { show: false }, 
+            zoom: { enabled: true },
+            animations: { enabled: true },
+            parentHeightOffset: 0
+        },
         series: [{ name: 'Gastos Mensuales', data: <?= json_encode($data_mes ?: [0], JSON_NUMERIC_CHECK) ?> }],
         xaxis: { categories: <?= json_encode($labels_mes) ?>, tooltip: { enabled: false } },
         yaxis: { labels: { formatter: v => '$' + parseFloat(v||0).toLocaleString() } },
@@ -664,17 +748,22 @@ document.addEventListener('DOMContentLoaded', function() {
         fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.3, stops: [0, 90, 100] } },
         stroke: { curve: 'smooth', width: 3 },
         markers: { size: 5, colors: ['#fff'], strokeColors: colors.green, strokeWidth: 2, hover: { size: 7 } },
-        tooltip: { y: { formatter: v => '$' + (v||0).toLocaleString() } }
+        tooltip: { y: { formatter: v => '$' + (v||0).toLocaleString() } },
+        responsive: [{
+            breakpoint: 768,
+            options: { chart: { height: 300 } }
+        }]
     });
 
-    console.log('✅ ApexCharts inicializado');
+    console.log('✅ ApexCharts inicializado con resize automático');
 });
 
-// Modales
 function openModal(id) { document.getElementById(id).style.display = 'block'; document.body.style.overflow = 'hidden'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = 'auto'; }
 window.onclick = e => { if(e.target.classList.contains('dashboard-modal')) { e.target.style.display='none'; document.body.style.overflow='auto'; } };
 document.addEventListener('keydown', e => { if(e.key==='Escape') { document.querySelectorAll('.dashboard-modal').forEach(m => { if(m.style.display==='block') { m.style.display='none'; document.body.style.overflow='auto'; } }); } });
+
 </script>
+
 
 <?php require_once 'includes/footer.php'; ?>
