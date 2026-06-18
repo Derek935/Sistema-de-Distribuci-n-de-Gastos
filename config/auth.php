@@ -118,8 +118,13 @@ function getRoleBadge() {
     if (!$user) return '';
     
     if ($user['id_rol'] === 1) {
-        return '<span class="role-badge admin">👑 Admin</span>';
+        return '<span class="role-badge admin">
+                    <span class="role-icon">👑</span>
+                    <span>Admin</span>
+                </span>';
     }
-    return '<span class="role-badge user">👤 Usuario</span>';
+    return '<span class="role-badge user">
+                <span class="role-icon">👤</span>
+                <span>Usuario</span>
+            </span>';
 }
-?>

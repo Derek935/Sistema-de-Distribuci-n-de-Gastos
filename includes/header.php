@@ -31,18 +31,27 @@ $menuItems = getMenuItems();
 </head>
 <body>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Outfit', sans-serif; background: #f5f5f5; }
-        .header { background: #0f172a; color: white; padding: 1rem 2rem; }
-        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: 700; }
-        .navbar { display: flex; gap: 1rem; }
-        .nav-item { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; transition: all 0.2s; }
-        .nav-item:hover { background: #1e293b; }
-        .nav-item.active { background: #3b82f6; }
-        .btn-logout { background: #ef4444; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; }
-        main { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-    </style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: #f5f5f5; }
+    .header { background: #0f172a; color: white; padding: 1rem 2rem; }
+    .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    
+    /* ✅ CAMBIO: Logo con flexbox para alinear el badge */
+    .logo { 
+        font-size: 1.5rem; 
+        font-weight: 700; 
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .navbar { display: flex; gap: 1rem; align-items: center; }
+    .nav-item { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; transition: all 0.2s; }
+    .nav-item:hover { background: #1e293b; }
+    .nav-item.active { background: #3b82f6; }
+    .btn-logout { background: #ef4444; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; }
+    main { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+</style>
 <header class="header">
     <div class="header-content">
         <div class="logo">
