@@ -1,5 +1,5 @@
 {
     "require": {
-        "shuchkin/simplexlsxgen": "^1.5"
+        "shuchkin/simplexlsxgen": "^1.5.17"
     }
 }

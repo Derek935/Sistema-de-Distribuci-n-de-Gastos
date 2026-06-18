@@ -483,22 +483,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, timerProgressBar: true });
 
     // ===== RUBROS DINÁMICOS =====
-    const counters = { mantenedor: 1, tecnico: 1 };
-    function addRubro(tipo) {
-        const container = document.getElementById(`rubrosContainer${tipo === 'mantenedor' ? 'Mant' : 'Tec'}`);
-        const select = container.querySelector('select[name="rubro[]"]');
-        const newItem = document.createElement('div');
-        newItem.className = 'rubro-item';
-        newItem.innerHTML = `
-            <select name="rubro[]" required>${select.innerHTML}</select>
-            <input type="number" name="monto_gasto[]" step="0.01" min="0.01" placeholder="$0.00" required onchange="calcularTotal('${tipo}')">
-            <textarea name="observaciones[]" placeholder="Obs..." rows="2"></textarea>
-            <button type="button" onclick="this.parentElement.remove(); calcularTotal('${tipo}')" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">🗑️</button>
-        `;
-        container.appendChild(newItem);
-        calcularTotal(tipo);
-        Toast.fire({ icon: 'success', title: '✅ Rubro agregado' });
-    }
+const counters = { mantenedor: 1, tecnico: 1 };
+
+function addRubro(tipo) {
+    const container = document.getElementById(`rubrosContainer${tipo === 'mantenedor' ? 'Mant' : 'Tec'}`);
+    
+    // ✅ Obtener las opciones del primer select para clonarlas
+    const primerSelect = container.querySelector('select[name="rubro[]"]');
+    const opcionesRubro = primerSelect.innerHTML;
+    
+    const newItem = document.createElement('div');
+    newItem.className = 'rubro-item';
+    
+    // ✅ MISMA estructura HTML que el original
+    newItem.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <select name="rubro[]" class="registro-select" required>
+                ${opcionesRubro}
+            </select>
+            <input type="number" name="monto_gasto[]" step="0.01" min="0.01" placeholder="$0.00" required onchange="calcularTotal('${tipo}')" class="registro-select">
+        </div>
+        <textarea name="observaciones[]" 
+                  placeholder="Escribe aquí las observaciones del gasto..." 
+                  class="registro-select" 
+                  rows="3" 
+                  style="width: 100%; min-height: 80px; resize: vertical;"></textarea>
+        <button type="button" onclick="this.parentElement.remove(); calcularTotal('${tipo}')" 
+                style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; margin-top: 10px; align-self: start;">
+            🗑️ Eliminar
+        </button>
+    `;
+    
+    container.appendChild(newItem);
+    calcularTotal(tipo);
+    Toast.fire({ icon: 'success', title: '✅ Rubro agregado' });
+}
 
     function calcularTotal(tipo) {
         const suffix = tipo === 'mantenedor' ? 'Mant' : 'Tec';

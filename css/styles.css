@@ -1481,22 +1481,21 @@ table tr:hover {
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
-.rubro-item { 
-    padding: 16px 20px; 
-    background: #f8fafc; 
-    border-radius: 8px; 
-    margin-bottom: 8px; 
-    display: flex; 
-    flex-direction: column;  /* ✅ Cambiar a columna para centrar verticalmente */
-    justify-content: center; 
-    align-items: center;     /* ✅ Centrar horizontalmente */
-    text-align: center;      /* ✅ Centrar el texto */
+.rubro-item {
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #e2e8f0;
     border-left: 4px solid #667eea;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    display: block; /* ✅ Cambiar de flex a block */
 }
+
 .rubro-item:hover {
-    background: #f1f5f9;
+    background: #f9fafb;
     transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 .rubro-item .rubro-content {
     width: 100%;
@@ -1609,4 +1608,71 @@ table tr:hover {
 .role-badge .role-icon {
     font-size: 14px;
     line-height: 1;
+}
+/* ============================================
+   RUBROS DINÁMICOS - ESTILOS COMPLETOS
+   ============================================ */
+
+.rubro-item select,
+.rubro-item input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #fff;
+    transition: all 0.3s;
+}
+
+.rubro-item select:focus,
+.rubro-item input[type="number"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.rubro-item textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    transition: all 0.3s;
+}
+
+.rubro-item textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.rubro-item button {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rubro-item button:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rubro-item > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
 }
