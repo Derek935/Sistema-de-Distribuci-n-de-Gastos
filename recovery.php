@@ -100,12 +100,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             />
           </div>
           
-          <input name="accion" type="hidden" value="recuperar">
-          <button type="submit" name="btnlogin" class="btn"> Recuperar Contraseña</button>
+                    <input name="accion" type="hidden" value="recuperar">
+          
+          
+          <div class="text-center" style="margin: 25px 0;">
+            <button type="submit" name="btnlogin" class="btn" style="min-width: 200px;">
+              Recuperar Contraseña
+            </button>
+          </div>
           
           <?php if($mostrar_password): ?>
             <div class="alert alert-warning">
-               <strong>Importante:</strong> Por seguridad, las contraseñas están encriptadas. 
+              <strong>Importante:</strong> Por seguridad, las contraseñas están encriptadas. 
               La opción recomendada es restablecer la contraseña.
             </div>
           <?php endif; ?>
@@ -114,12 +120,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="recovery-password-display">
               <strong>Tu Contraseña:</strong>
               <div class="recovery-password"><?php echo htmlspecialchars($password_recuperada); ?></div>
-              <small> No compartas esta contraseña con nadie</small>
+              <small>No compartas esta contraseña con nadie</small>
             </div>
           <?php endif; ?>  
           
-          <div class="text-center mt-20">
-            <a href="index.php" class="btn btn-secondary"> Ir al Login</a>
+          
+          <div class="text-center" style="margin-top: 15px;">
+            <a href="index.php" class="btn btn-secondary" style="min-width: 200px;">
+              Ir al Login
+            </a>
           </div>
         </form>
       </div>
