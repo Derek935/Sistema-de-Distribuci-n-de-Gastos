@@ -365,14 +365,18 @@ $periodos_disponibles = $pdo->query("
             <div class="form-group">
                 <label>Trabajador</label>
                 <select name="trabajador_id" id="trabajador_id" required>
-                    <option value="">-- Seleccione --</option>
-                    <?php foreach($trabajadores as $trab): ?>
-                        <option value="<?= $trab['id'] ?>" data-tipo="<?= strtolower($trab['tipo']) ?>"
-                            <?= (isset($_GET['trabajador_id']) && $_GET['trabajador_id'] == $trab['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($trab['nombre']) ?> (<?= $trab['tipo'] ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+    <option value="">-- Seleccione --</option>
+    <?php foreach($trabajadores as $trab): ?>
+        <?php 
+        // ✅ Normalizar tipo sin tildes para comparación
+        $tipoNormalizado = strtolower(str_replace(['é', 'í', 'ó', 'ú', 'á'], ['e', 'i', 'o', 'u', 'a'], $trab['tipo']));
+        ?>
+        <option value="<?= $trab['id'] ?>" data-tipo="<?= $tipoNormalizado ?>"
+            <?= (isset($_GET['trabajador_id']) && $_GET['trabajador_id'] == $trab['id']) ? 'selected' : '' ?>>
+            <?= htmlspecialchars($trab['nombre']) ?> (<?= $trab['tipo'] ?>)
+        </option>
+    <?php endforeach; ?>
+</select>
             </div>
             <div class="form-group">
                 <label>&nbsp;</label>
@@ -762,6 +766,45 @@ function openModal(id) { document.getElementById(id).style.display = 'block'; do
 function closeModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = 'auto'; }
 window.onclick = e => { if(e.target.classList.contains('dashboard-modal')) { e.target.style.display='none'; document.body.style.overflow='auto'; } };
 document.addEventListener('keydown', e => { if(e.key==='Escape') { document.querySelectorAll('.dashboard-modal').forEach(m => { if(m.style.display==='block') { m.style.display='none'; document.body.style.overflow='auto'; } }); } });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoTrabajadorSelect = document.getElementById('tipo_trabajador');
+    const trabajadorSelect = document.getElementById('trabajador_id');
+    
+    if (tipoTrabajadorSelect && trabajadorSelect) {
+        function filtrarTrabajadores() {
+            const tipoSeleccionado = tipoTrabajadorSelect.value;
+            const opciones = trabajadorSelect.querySelectorAll('option');
+            
+            let primeraOpcionValida = null;
+            
+            opciones.forEach(opcion => {
+                if (opcion.value === '') return;
+                
+                const tipoOpcion = opcion.getAttribute('data-tipo');
+                
+                if (tipoOpcion === tipoSeleccionado) {
+                    opcion.style.display = 'block';
+                    if (!primeraOpcionValida) {
+                        primeraOpcionValida = opcion;
+                    }
+                } else {
+                    opcion.style.display = 'none';
+                    if (opcion.selected) {
+                        opcion.selected = false;
+                    }
+                }
+            });
+            
+            if (!trabajadorSelect.value && primeraOpcionValida) {
+                primeraOpcionValida.selected = true;
+            }
+        }
+        
+        tipoTrabajadorSelect.addEventListener('change', filtrarTrabajadores);
+        filtrarTrabajadores();
+    }
+});
 
 </script>
 
