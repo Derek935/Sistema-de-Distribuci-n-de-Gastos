@@ -204,7 +204,7 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subir Comprobante y Gestión de Rubros</title>
+    <title>Subir Comprobante y Gestión Rubros</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
@@ -266,7 +266,7 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
 
 <div class="page-container">
     <div class="page-header">
-        <h1>📤 Subir Comprobante y Gestión de Rubros</h1>
+        <h1>📤 Comprobante y Rubros</h1>
         <p style="color: #64748b;">Administra comprobantes y rubros del sistema</p>
     </div>
 
