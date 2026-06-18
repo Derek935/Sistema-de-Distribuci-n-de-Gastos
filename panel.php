@@ -507,6 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== PREVIEW DE ARCHIVOS =====
+// ===== PREVIEW DE ARCHIVOS =====
 function previewFile(input) {
     const file = input.files[0];
     const fileInfo = document.getElementById('fileInfo');
@@ -517,16 +518,15 @@ function previewFile(input) {
     
     if (!file) return;
     
-    // 🔍 DEBUG: Imprimir en consola el tamaño real detectado
     console.log("📦 Nombre:", file.name);
     console.log("📏 Tamaño real (bytes):", file.size);
     console.log("📏 Tamaño real (KB):", (file.size / 1024).toFixed(2));
     console.log("📏 Tipo MIME detectado:", file.type);
     
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-    const maxSize = 5 * 1024 * 1024; // 5MB = 5,242,880 bytes
+    const maxSize = 5 * 1024 * 1024; // 5MB
     
-    // 1. Validar tipo de archivo (¡A veces las imágenes son .webp o .heic!)
+    // Validar tipo
     if (!allowedTypes.includes(file.type)) {
         Swal.fire({
             icon: 'error',
@@ -538,7 +538,7 @@ function previewFile(input) {
         return;
     }
     
-    // 2. Validar tamaño (Ahora muestra el tamaño real detectado)
+    // Validar tamaño
     if (file.size > maxSize) {
         const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
         Swal.fire({
@@ -561,14 +561,56 @@ function previewFile(input) {
         fileIcon.textContent = '🖼️';
         const reader = new FileReader();
         reader.onload = e => {
-            // ✅ IMAGEN CON TAMAÑO LIMITADO (150x150px máx)
-            imagePreview.innerHTML = `<img src="${e.target.result}" alt="Vista previa" class="preview-image" style="max-width: 150px; max-height: 150px;">`;
+            // ✅ AGREGAR BOTÓN DE ELIMINAR junto a la imagen
+            imagePreview.innerHTML = `
+                <div style="position: relative; display: inline-block;">
+                    <img src="${e.target.result}" alt="Vista previa" class="preview-image" style="max-width: 150px; max-height: 150px;">
+                    <button type="button" onclick="removeFile()" 
+                            style="position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 16px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
+                            title="Eliminar archivo">
+                        ×
+                    </button>
+                </div>
+            `;
         };
         reader.readAsDataURL(file);
     } else if (file.type === 'application/pdf') {
         fileIcon.textContent = '📄';
-        imagePreview.innerHTML = '<div style="font-size: 48px; text-align: center; margin: 12px 0;">📄</div><div style="text-align: center; color: #64748b; font-size: 12px;">Documento PDF</div>';
+        // ✅ AGREGAR BOTÓN DE ELIMINAR para PDF
+        imagePreview.innerHTML = `
+            <div style="position: relative; display: inline-block; width: 100%;">
+                <div style="font-size: 48px; text-align: center; margin: 12px 0;">📄</div>
+                <div style="text-align: center; color: #64748b; font-size: 12px;">Documento PDF</div>
+                <button type="button" onclick="removeFile()" 
+                        style="position: absolute; top: 0; right: 0; background: #ef4444; color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 20px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
+                        title="Eliminar archivo">
+                    ×
+                </button>
+            </div>
+        `;
     }
+}
+// ===== ELIMINAR ARCHIVO SELECCIONADO =====
+function removeFile() {
+    const fileInput = document.getElementById('comprobante');
+    const fileInfo = document.getElementById('fileInfo');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    // Limpiar input file
+    fileInput.value = '';
+    
+    // Ocultar información del archivo
+    fileInfo.classList.remove('show');
+    imagePreview.innerHTML = '';
+    
+    // Mostrar confirmación
+    Swal.fire({
+        icon: 'success',
+        title: '✅ Archivo eliminado',
+        text: 'Puedes seleccionar un nuevo archivo',
+        timer: 1500,
+        showConfirmButton: false
+    });
 }
 
 function formatFileSize(bytes) {
