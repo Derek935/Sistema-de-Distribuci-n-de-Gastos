@@ -312,7 +312,7 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
                                onchange="previewFile(this)">
                     </label>
                     <p style="margin-top: 12px; font-size: 12px; color: #94a3b8;">
-                        Formatos: JPG, PNG, GIF, PDF (Máx. 5MB)
+                        Formatos: JPG, PNG, PDF (Máx. 5MB)
                     </p>
                 </div>
 
