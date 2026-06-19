@@ -2,19 +2,19 @@
 // dashboard.php
 require 'config/auth.php';
 
-// ✅ Proteger vista - Solo admin
+// Proteger vista - Solo admin
 requireAdmin();
 
 require 'conexion/conexion.php';
 require_once 'includes/header.php';
 
 // ============================================
-// 🎯 FILTRO POR PERÍODO
+// FILTRO POR PERÍODO
 // ============================================
 $id_periodo_filtro = isset($_GET['periodo']) && $_GET['periodo'] !== '' ? intval($_GET['periodo']) : null;
 
 // ============================================
-// 📊 CONSULTAS PARA EL DASHBOARD
+// CONSULTAS PARA EL DASHBOARD
 // ============================================
 
 // 1. Total general de gastos
@@ -145,7 +145,7 @@ $data_programa = array_column($gastos_por_programa, 'total');
 $labels_mes = array_column($gastos_por_mes, 'mes_nombre');
 $data_mes = array_column($gastos_por_mes, 'total');
 
-// 🔍 Cargar trabajadores
+// Cargar trabajadores
 $trabajadores = $pdo->query("
     SELECT id_mantenedor as id, nombre, 'Mantenedor' as tipo FROM mantenedor WHERE estado = 1
     UNION ALL
@@ -153,10 +153,10 @@ $trabajadores = $pdo->query("
     ORDER BY tipo, nombre
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// 🔍 Cargar rubros
+// Cargar rubros
 $rubros_lista = $pdo->query("SELECT id_rubro, nombre_rubro FROM rubro WHERE activo = 1 ORDER BY nombre_rubro ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-// 🔍 BUSCAR GASTOS POR TRABAJADOR
+// 🔍BUSCAR GASTOS POR TRABAJADOR
 $gastos_trabajador = [];
 $trabajador_seleccionado = null;
 $total_gastos = 0;
@@ -176,7 +176,6 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
     }
     
    if ($trabajador_seleccionado) {
-    // ✅ CAMBIO: Incluir estado 1 Y 2, y traer el campo estado
     $sql = "
         SELECT 
             g.id_gasto, g.fecha_gasto, g.monto, g.descripcion, g.comprobante, g.fecha_registro, g.estado,
@@ -205,7 +204,7 @@ if (isset($_GET['buscar_trabajador']) && !empty($_GET['trabajador_id'])) {
 }
 }
 
-// 🔍 Cargar períodos
+// Cargar períodos
 $periodos_disponibles = $pdo->query("
     SELECT id_periodo, 
            CONCAT('Entre ', DATE_FORMAT(fecha_inicio, '%d/%m/%Y'), ' y ', DATE_FORMAT(fecha_fin, '%d/%m/%Y')) as periodo
@@ -232,7 +231,7 @@ $periodos_disponibles = $pdo->query("
 
 <div class="dashboard-container">
     
-    <!-- 🔹 FILTRO DE PERÍODO -->
+    <!-- FILTRO DE PERÍODO -->
     <div class="periodo-filtro">
         <label for="filtro_periodo">📅 Filtrar por período:</label>
         <form method="GET" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -368,7 +367,6 @@ $periodos_disponibles = $pdo->query("
     <option value="">-- Seleccione --</option>
     <?php foreach($trabajadores as $trab): ?>
         <?php 
-        // ✅ Normalizar tipo sin tildes para comparación
         $tipoNormalizado = strtolower(str_replace(['é', 'í', 'ó', 'ú', 'á'], ['e', 'i', 'o', 'u', 'a'], $trab['tipo']));
         ?>
         <option value="<?= $trab['id'] ?>" data-tipo="<?= $tipoNormalizado ?>"
@@ -465,7 +463,7 @@ $periodos_disponibles = $pdo->query("
                                     $ext = strtolower(pathinfo($gasto['comprobante'], PATHINFO_EXTENSION));
                                     if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): 
                                     ?>
-                                        <!-- ✅ IMAGEN CON TAMAÑO LIMITADO -->
+                                        <!-- IMAGEN CON TAMAÑO LIMITADO -->
                                         <img src="<?= htmlspecialchars($gasto['comprobante']) ?>" 
                                             alt="Comprobante" 
                                             class="dashboard-comprobante-img" 
@@ -533,7 +531,7 @@ $periodos_disponibles = $pdo->query("
     </div>
 </div>
 
-<!-- ✅ NUEVO MODAL: EXPORTAR POR RUBROS -->
+<!-- EXPORTAR POR RUBROS -->
 <div id="modalRubros" class="dashboard-modal">
     <div class="dashboard-modal-content">
         <span class="dashboard-close" onclick="closeModal('modalRubros')">&times;</span>
@@ -556,7 +554,7 @@ $periodos_disponibles = $pdo->query("
     </div>
 </div>
 
-<!-- ✅ NUEVO MODAL: EXPORTAR POR TIPO DE TRABAJADOR -->
+<!-- NUEVO MODAL: EXPORTAR POR TIPO DE TRABAJADOR -->
 <div id="modalTipoTrabajador" class="dashboard-modal">
     <div class="dashboard-modal-content">
         <span class="dashboard-close" onclick="closeModal('modalTipoTrabajador')">&times;</span>
@@ -590,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const colors = { blue:'#3498db', green:'#2ecc71', orange:'#e67e22', purple:'#9b59b6', red:'#e74c3c' };
 
     // ============================================
-    // 📦 ALMACENAR INSTANCIAS DE GRÁFICAS
+    // ALMACENAR INSTANCIAS DE GRÁFICAS
     // ============================================
     const charts = {};
 
@@ -609,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================
-    // 🔄 FUNCIÓN PARA REDIMENSIONAR TODAS LAS GRÁFICAS
+    // FUNCIÓN PARA REDIMENSIONAR TODAS LAS GRÁFICAS
     // ============================================
     function redimensionarGraficas() {
         for (let id in charts) {
@@ -621,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================
-    // 📐 EVENTO RESIZE CON DEBOUNCE
+    // EVENTO RESIZE CON DEBOUNCE
     // ============================================
     let resizeTimer;
     window.addEventListener('resize', function() {
@@ -649,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================
-    // 📊 CREAR GRÁFICAS
+    // CREAR GRÁFICAS
     // ============================================
 
     // 1. GRÁFICA DE PERÍODOS

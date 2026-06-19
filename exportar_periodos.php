@@ -2,7 +2,7 @@
 // exportar_periodos.php
 require_once 'config/auth.php';
 
-// ✅ PROTEGER: Solo admin
+// PROTEGER: Solo admin
 requireAdmin();
 
 require 'conexion/conexion.php';
@@ -17,8 +17,6 @@ if (!isset($_POST['exportar'])) {
 
 $id_periodo = $_POST['id_periodo'] ?? '';
 
-// ===== CONSULTA CORREGIDA =====
-// ✅ CORRECCIÓN: Cambiar 'pe.id_localidad' por 'g.id_localidad'
 $sql = "SELECT 
     g.id_gasto,
     g.fecha_gasto,
@@ -37,7 +35,7 @@ LEFT JOIN rubro r ON g.id_rubro = r.id_rubro
 LEFT JOIN mantenedor m ON g.id_mantenedor = m.id_mantenedor
 LEFT JOIN tecnico t ON g.id_tecnico = t.id_tecnico
 LEFT JOIN periodo pe ON g.id_periodo = pe.id_periodo
-LEFT JOIN localidad l ON g.id_localidad = l.id_localidad  -- ✅ AQUÍ ESTABA EL ERROR
+LEFT JOIN localidad l ON g.id_localidad = l.id_localidad 
 WHERE g.estado = 1";
 
 $params = [];

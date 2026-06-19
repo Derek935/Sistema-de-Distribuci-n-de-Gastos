@@ -27,7 +27,6 @@ $menuItems = getMenuItems();
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     
-    <!-- ✅ CSS CON RUTA DINÁMICA -->
 </head>
 <body>
     <style>
@@ -36,7 +35,7 @@ $menuItems = getMenuItems();
     .header { background: #0f172a; color: white; padding: 1rem 2rem; }
     .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     
-    /* ✅ CAMBIO: Logo con flexbox para alinear el badge */
+
     .logo { 
         font-size: 1.5rem; 
         font-weight: 700; 

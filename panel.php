@@ -2,11 +2,11 @@
 // subir_comprobante.php
 require_once 'config/auth.php';
 
-// ✅ PROTEGER: Solo admin puede acceder
+// PROTEGER: Solo admin puede acceder
 requireAdmin();
 
 
-// ✅ Proteger vista
+// Proteger vista
 if (!isLoggedIn()) {
     header("Location: /index.php");
     exit();
@@ -15,7 +15,7 @@ if (!isLoggedIn()) {
 require 'conexion/conexion.php';
 
 // ============================================
-// ✅ CONFIGURACIÓN DE UPLOAD (NUEVO)
+// CONFIGURACIÓN DE UPLOAD 
 // ============================================
 $uploadDir = 'uploads/comprobantes/';
 $maxFileSize = 5 * 1024 * 1024; // 5MB
@@ -29,7 +29,7 @@ if (!file_exists($uploadDir)) {
 // ============================================
 
 // ======================================================================
-// 🚀 BLOQUE AJAX: DEBE IR JUSTO DESPUÉS DE LOS REQUIRES, ANTES DEL HTML
+// BLOQUE AJAX: DEBE IR JUSTO DESPUÉS DE LOS REQUIRES, ANTES DEL HTML
 // ======================================================================
 if (isset($_GET['action']) && $_GET['action'] === 'get_gastos' && isset($_GET['fecha'])) {
     // 1. Limpiar cualquier output anterior (espacios en blanco, warnings de PHP)
@@ -82,12 +82,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnAgregarRubro'])) {
             throw new Exception('Ya existe un rubro con ese nombre');
         }
         
-        // ✅ Obtener el último id_rubro y sumar 1
+        // Obtener el último id_rubro y sumar 1
         $stmtMax = $pdo->query("SELECT MAX(id_rubro) as max_id FROM rubro");
         $resultado = $stmtMax->fetch(PDO::FETCH_ASSOC);
         $nuevo_id_rubro = $resultado['max_id'] ? intval($resultado['max_id']) + 1 : 1;
         
-        // ✅ Insertar incluyendo el id_rubro calculado
+        // Insertar incluyendo el id_rubro calculado
         $stmt = $pdo->prepare("INSERT INTO rubro (id_rubro, nombre_rubro, descripcion, activo) VALUES (?, ?, ?, ?)");
         $stmt->execute([$nuevo_id_rubro, $nombre_rubro, $descripcion, $activo]);
         
@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnSubirComprobante'])
     try {
         $gastos_seleccionados = $_POST['gastos'] ?? [];
         
-        // ✅ Validar que se haya seleccionado al menos un gasto
+        // Validar que se haya seleccionado al menos un gasto
         if (empty($gastos_seleccionados)) {
             throw new Exception('Debes seleccionar al menos un gasto para adjuntar el comprobante.');
         }
@@ -126,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnSubirComprobante'])
         if (isset($_FILES['comprobante']) && $_FILES['comprobante']['error'] === UPLOAD_ERR_OK) {
             $archivo = $_FILES['comprobante'];
             
-            // 🔍 DEBUG: Ver exactamente qué valores se están comparando
+            // Ver exactamente qué valores se están comparando
             $tamanoArchivo = intval($archivo['size']); // Asegurar que sea integer
             
             error_log("=== DEBUG UPLOAD ===");
@@ -134,14 +134,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnSubirComprobante'])
             error_log("Límite máximo: $maxFileSize bytes (" . ($maxFileSize/1024/1024) . " MB)");
             error_log("¿Excede el límite? " . ($tamanoArchivo > $maxFileSize ? 'SÍ' : 'NO'));
             
-            // ✅ Validar tamaño (comparación correcta)
+            // Validar tamaño (comparación correcta)
             if ($tamanoArchivo > $maxFileSize) {
                 $tamanoKB = round($tamanoArchivo / 1024, 2);
                 $limiteMB = round($maxFileSize / 1024 / 1024, 2);
                 throw new Exception("El archivo pesa {$tamanoKB} KB y excede el límite de {$limiteMB} MB.");
             }
             
-            // ✅ Validar tipo MIME
+            // Validar tipo MIME
             $finfo = new finfo(FILEINFO_MIME_TYPE);
             $mimeType = $finfo->file($archivo['tmp_name']);
             
@@ -149,13 +149,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnSubirComprobante'])
                 throw new Exception("Tipo de archivo no permitido. Se detectó: $mimeType. Solo se permiten: JPG, PNG, GIF o PDF.");
             }
             
-            // ✅ Validar extensión
+            // Validar extensión
             $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
             if (!in_array($extension, $allowedExtensions)) {
                 throw new Exception("Extensión no permitida: .$extension. Solo se permiten: jpg, jpeg, png, gif, pdf.");
             }
             
-            // ✅ Generar nombre único y mover archivo
+            // Generar nombre único y mover archivo
             $nombreUnico = uniqid('comp_') . '_' . time() . '.' . $extension;
             $rutaDestino = $uploadDir . $nombreUnico;
             
@@ -172,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnSubirComprobante'])
             throw new Exception("Error en la subida del archivo. Código de error: $errorCode");
         }
         
-        // ✅ Actualizar los gastos seleccionados: agregar comprobante y cambiar estado a 2
+        // Actualizar los gastos seleccionados: agregar comprobante y cambiar estado a 2
         $placeholders = implode(',', array_fill(0, count($gastos_seleccionados), '?'));
         $sql = "UPDATE gasto SET comprobante = ?, estado = 2 WHERE id_gasto IN ($placeholders) AND estado = 1";
         $stmt = $pdo->prepare($sql);
@@ -195,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btnSubirComprobante'])
         exit();
     }
 }
-// 🔍 Cargar rubros existentes
+// Cargar rubros existentes
 $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -233,8 +233,7 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
         .file-input-label:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
         .file-info { margin-top: 16px; padding: 16px; background: white; border-radius: 8px; border: 1px solid #e5e7eb; display: none; text-align: left; }
         .file-info.show { display: block; }
-        
-        /* ✅ IMAGEN DE VISTA PREVIA - TAMAÑO LIMITADO */
+
         .preview-image { 
             max-width: 150px !important; 
             max-height: 150px !important;
@@ -271,24 +270,23 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
     </div>
 
     <div class="grid-2">
-        <!-- 🔹 SECCIÓN 1: SUBIDA DE COMPROBANTE -->
+        <!-- SUBIDA DE COMPROBANTE -->
         <div class="card">
             <h2 class="card-title">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                Subir Comprobante
             </h2>
             
             <form method="POST" enctype="multipart/form-data" id="formComprobante">
                 
-                <!-- ✅ NUEVO: Selector de fecha para cargar gastos -->
+                <!-- Selector de fecha para cargar gastos -->
                 <div class="form-group">
                     <label for="fecha_gasto">📅 Seleccionar Fecha de los Gastos</label>
                     <input type="date" name="fecha_gasto" id="fecha_gasto" class="form-control" value="<?php echo date('Y-m-d'); ?>" required onchange="cargarGastos(this.value)">
                 </div>
 
-                <!-- ✅ NUEVO: Lista de gastos para seleccionar -->
+                <!-- Lista de gastos para seleccionar -->
                 <div class="form-group" id="lista_gastos_container" style="display:none; max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; background: #f9fafb;">
                     <label style="margin-bottom: 10px; display: block; font-weight: 600;">Selecciona los gastos a finalizar:</label>
                     <div id="lista_gastos">
@@ -336,7 +334,7 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
             </form>
         </div>
 
-        <!-- 🔹 SECCIÓN 2: AGREGAR NUEVO RUBRO -->
+        <!-- AGREGAR NUEVO RUBRO -->
         <div class="card">
             <h2 class="card-title">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -376,7 +374,7 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
         </div>
     </div>
 
-    <!-- 🔹 LISTA DE RUBROS EXISTENTES -->
+    <!-- LISTA DE RUBROS EXISTENTES -->
     <div class="card" style="margin-top: 30px;">
         <h2 class="card-title">
             <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,7 +410,7 @@ $rubros = $pdo->query("SELECT * FROM rubro ORDER BY id_rubro ASC")->fetchAll(PDO
     </div>
 </div>
 
-<!-- 🎨 SWEETALERT2: MENSAJES DE SESIÓN -->
+<!-- SWEETALERT2: MENSAJES DE SESIÓN -->
 <?php if (isset($_SESSION['mensaje'])): ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -432,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <?php unset($_SESSION['mensaje'], $_SESSION['tipo_mensaje']); endif; ?>
 
-<!-- ✅ JAVASCRIPT PARA PREVIEW Y CARGA DE GASTOS -->
+<!-- JAVASCRIPT PARA PREVIEW Y CARGA DE GASTOS -->
 <script>
 // ===== CARGAR GASTOS POR FECHA =====
 function cargarGastos(fecha) {
@@ -444,8 +442,6 @@ function cargarGastos(fecha) {
     // Mostrar estado de carga
     document.getElementById('lista_gastos').innerHTML = '<p style="text-align:center; color:#64748b; padding:10px;">⏳ Cargando gastos...</p>';
     document.getElementById('lista_gastos_container').style.display = 'block';
-    
-    // ✅ CORRECCIÓN: Usar la ruta actual del archivo explícitamente
     const currentUrl = window.location.href.split('?')[0]; 
     const fetchUrl = `${currentUrl}?action=get_gastos&fecha=${fecha}`;
     
@@ -507,7 +503,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== PREVIEW DE ARCHIVOS =====
-// ===== PREVIEW DE ARCHIVOS =====
 function previewFile(input) {
     const file = input.files[0];
     const fileInfo = document.getElementById('fileInfo');
@@ -561,7 +556,7 @@ function previewFile(input) {
         fileIcon.textContent = '🖼️';
         const reader = new FileReader();
         reader.onload = e => {
-            // ✅ AGREGAR BOTÓN DE ELIMINAR junto a la imagen
+            // BOTÓN DE ELIMINAR junto a la imagen
             imagePreview.innerHTML = `
                 <div style="position: relative; display: inline-block;">
                     <img src="${e.target.result}" alt="Vista previa" class="preview-image" style="max-width: 150px; max-height: 150px;">
@@ -576,7 +571,7 @@ function previewFile(input) {
         reader.readAsDataURL(file);
     } else if (file.type === 'application/pdf') {
         fileIcon.textContent = '📄';
-        // ✅ AGREGAR BOTÓN DE ELIMINAR para PDF
+        // BOTÓN DE ELIMINAR para PDF
         imagePreview.innerHTML = `
             <div style="position: relative; display: inline-block; width: 100%;">
                 <div style="font-size: 48px; text-align: center; margin: 12px 0;">📄</div>

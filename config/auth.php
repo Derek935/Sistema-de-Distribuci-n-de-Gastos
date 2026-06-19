@@ -87,7 +87,7 @@ function getMenuItems() {
         'roles' => [1, 2]
     ];
     
-    // ✅ NUEVO: Panel de Control - Solo para Admin (rol 1)
+    // Panel de Control - Solo para Admin (rol 1)
     if ($user['id_rol'] === 1) {
         $menu[] = [
             'label' => '📤 Comprobantes y Rubros',

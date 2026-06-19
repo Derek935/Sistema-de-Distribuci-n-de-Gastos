@@ -16,7 +16,6 @@ if (isset($_SESSION['user_id'])) {
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // 🔹 CAMBIO 1: Obtener el correo en lugar del usuario
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     
@@ -24,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
             require 'conexion/conexion.php';
             
-            // 🔹 CAMBIO 2: Buscar usuario por CORREO en lugar de nombre
             $stmt = $pdo->prepare("SELECT id_usuario, nombre, password_hash, id_rol, correo, estado FROM usuario WHERE correo = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -35,13 +33,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($user['estado'] != 1) {
                     $error = "❌ Tu cuenta está inactiva. Contacta al administrador.";
                 } else {
-                    // ✅ Guardar TODOS los datos en sesión INCLUYENDO el rol
+                    // Guardar TODOS los datos en sesión INCLUYENDO el rol
                     $_SESSION['user_id'] = $user['id_usuario'];
                     $_SESSION['username'] = $user['nombre'];
                     $_SESSION['user_rol'] = $user['id_rol'];
                     $_SESSION['user_email'] = $user['correo'];
                     
-                    // 🎯 Redirección inteligente según el rol
+                    // Redirección según el rol
                     if ($user['id_rol'] == 1) {
                         header("Location: dashboard.php");
                     } else {
@@ -50,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     exit();
                 }
             } else {
-                // 🔹 CAMBIO 4: Mensaje genérico por seguridad
+                // Mensaje genérico por seguridad
                 $error = "❌ Correo o contraseña incorrectos.";
             }
         } catch (PDOException $e) {
@@ -175,7 +173,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
         
         <form method="POST">
-            <!-- 🔹 CAMBIO 5: Input de correo en lugar de usuario -->
             <div class="form-group">
                 <label>Correo Electrónico</label>
                 <input type="email" name="email" placeholder="ejemplo@correo.com" required autocomplete="email">

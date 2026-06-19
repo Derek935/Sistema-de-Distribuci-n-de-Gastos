@@ -27,7 +27,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($palabra === $user['correo']) {
                 
                 if ($accion === 'recuperar') {
-                    // ⚠️ OPCION INSEGURA: Mostrar contraseña
                     $mostrar_password = true;
                     $success = "✅ Palabra de recuperación correcta!";
                     $password_recuperada = $user['password_hash'];
@@ -47,8 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Google Fonts - Consistente con el proyecto -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">

@@ -9,7 +9,7 @@ if (!isLoggedIn()) {
 require 'conexion/conexion.php';
 require_once 'includes/header.php';
 
-// ✅ Cargar datos iniciales
+// Cargar datos iniciales
 $zonas = $pdo->query("SELECT id_zona, nombre_zona FROM zona WHERE estado = 1 ORDER BY nombre_zona ASC")->fetchAll(PDO::FETCH_ASSOC);
 $localidades = $pdo->query("SELECT id_localidad, nombre_localidad, id_zona FROM localidad WHERE estado = 1 ORDER BY nombre_localidad ASC")->fetchAll(PDO::FETCH_ASSOC);
 $programas = $pdo->query("SELECT id_programa, programa FROM programa ORDER BY programa ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -93,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_mantenedor'])
         if (empty($items_validos)) throw new Exception('Debe agregar al menos un rubro válido');
 
         $pdo->beginTransaction();
-        // ✅ Se pasa NULL explícitamente en la columna comprobante
+        // Se pasa NULL explícitamente en la columna comprobante
         $stmt = $pdo->prepare("INSERT INTO gasto (fecha_gasto, monto, descripcion, id_mantenedor, id_tecnico, id_rubro, id_periodo, id_programa, id_localidad, comprobante, fecha_registro, estado) VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, NULL, NOW(), 1)");
         
         $ids_gastos = [];
@@ -155,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         if (empty($items_validos)) throw new Exception('Debe agregar al menos un rubro válido');
 
         $pdo->beginTransaction();
-        // ✅ Se pasa NULL explícitamente en la columna comprobante
+        // Se pasa NULL explícitamente en la columna comprobante
         $stmt = $pdo->prepare("INSERT INTO gasto (fecha_gasto, monto, descripcion, id_mantenedor, id_tecnico, id_rubro, id_periodo, id_programa, id_localidad, comprobante, fecha_registro, estado) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, NULL, NOW(), 1)");
         
         $ids_gastos = [];
@@ -195,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/styles.css" />
-    <!-- ✅ SweetAlert2 CDN -->
+    <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .swal2-popup { font-family: 'Outfit', sans-serif !important; border-radius: 16px !important; }
@@ -216,13 +216,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
 </head>
 <body>
 
-    <!-- 🔹 SELECTOR PRINCIPAL -->
+    <!-- SELECTOR PRINCIPAL -->
     <div class="main-selector">
         <button type="button" class="selector-btn active" onclick="showForm('gastos', this)">➕ Registrar Gasto</button>
         <button type="button" class="selector-btn" onclick="showForm('periodo', this)">📅 Nuevo Periodo</button>
     </div>
 
-    <!-- 🔹 FORMULARIO: REGISTRO DE GASTOS -->
+    <!-- FORMULARIO: REGISTRO DE GASTOS -->
     <div id="formGastos" class="form-container active">
         <div class="form-card">
             <h2 style="margin-bottom: 25px; color: #1e293b;">📝 Registrar Gasto por Empleado</h2>
@@ -234,7 +234,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
 
             <!-- FORMULARIO MANTENEDOR -->
             <div id="formMantenedor" class="form-section active">
-                <!-- ✅ Se eliminó enctype="multipart/form-data" -->
                 <form method="POST" action="">
                     <input type="hidden" name="tipo_empleado" value="mantenedor">
                     
@@ -423,7 +422,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         </div>
     </div>
 
-    <!-- 🔹 FORMULARIO: PERIODO DE MANTENIMIENTO -->
+    <!-- FORMULARIO: PERIODO DE MANTENIMIENTO -->
     <div id="formPeriodo" class="form-container">
         <div class="form-card">
             <h2 style="margin-bottom: 20px; color: #1e293b; font-size: 20px; font-weight: 700;">
@@ -460,7 +459,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
         </div>
     </div>
 
-    <!-- 🎨 SWEETALERT2: MENSAJES DE SESIÓN -->
+    <!-- SWEETALERT2: MENSAJES DE SESIÓN -->
     <?php if (isset($_SESSION['mensaje'])): ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -478,7 +477,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btngasto_tecnico'])) {
     </script>
     <?php unset($_SESSION['mensaje'], $_SESSION['tipo_mensaje']); endif; ?>
 
-    <!-- ✅ JAVASCRIPT MINIMALISTA Y FUNCIONAL (Sin funciones de archivo) -->
+    <!-- JAVASCRIPT MINIMALISTA Y FUNCIONAL (Sin funciones de archivo) -->
     <script>
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, timerProgressBar: true });
 
@@ -488,14 +487,14 @@ const counters = { mantenedor: 1, tecnico: 1 };
 function addRubro(tipo) {
     const container = document.getElementById(`rubrosContainer${tipo === 'mantenedor' ? 'Mant' : 'Tec'}`);
     
-    // ✅ Obtener las opciones del primer select para clonarlas
+    // Obtener las opciones del primer select para clonarlas
     const primerSelect = container.querySelector('select[name="rubro[]"]');
     const opcionesRubro = primerSelect.innerHTML;
     
     const newItem = document.createElement('div');
     newItem.className = 'rubro-item';
     
-    // ✅ MISMA estructura HTML que el original
+    // MISMA estructura HTML que el original
     newItem.innerHTML = `
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
             <select name="rubro[]" class="registro-select" required>

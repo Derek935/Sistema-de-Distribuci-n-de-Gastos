@@ -6,7 +6,7 @@ require 'vendor/autoload.php';
 require_once 'config/auth.php';
 
 
-// ✅ Usar autoload de Composer
+// Usar autoload de Composer
 requireAdmin();
 
 use Shuchkin\SimpleXLSXGen;

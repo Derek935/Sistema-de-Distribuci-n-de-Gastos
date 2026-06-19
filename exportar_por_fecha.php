@@ -5,10 +5,10 @@ require 'vendor/autoload.php';
 // exportar_por_fecha.php
 require_once 'config/auth.php';
 
-// ✅ PROTEGER: Solo admin
+// PROTEGER: Solo admin
 requireAdmin();
 
-// Tu código existente de exportación...
+
 
 use Shuchkin\SimpleXLSXGen;
 
